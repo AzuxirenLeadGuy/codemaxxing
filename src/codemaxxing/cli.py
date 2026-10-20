@@ -30,7 +30,7 @@ def main():
         help="Target number of lines to generate (default: 10000)",
     )
     parser.add_argument(
-        "--sanity", type=int, default=50, choices=range(0, 101),
+        "--sanity", type=int, default=50, choices=range(101),
         metavar="0-100",
         help="Chaos level. 100=corporate cringe, 0=full unhinged (default: 50)",
     )
@@ -44,7 +44,7 @@ def main():
         "haskell", "hs", "c", "cpp", "c++", "swift", "zig", "lua",
     ]
     lang_action = next(action for action in parser._actions if "--lang" in action.option_strings)
-    lang_action.choices = list(lang_action.choices) + extra_langs
+    lang_action.choices = list(lang_action.choices) + extra_langs  # ty: ignore[invalid-argument-type]
     parser.add_argument(
         "--output", type=str, default="./output",
         help="Output directory (default: ./output)",

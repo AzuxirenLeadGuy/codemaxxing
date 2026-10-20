@@ -1,9 +1,13 @@
 import random
 
 CORPORATE_PREFIXES = [
-    "Abstract", "Base", "Default", "Internal", "Core", "Enhanced", "Optimized",
+    "Abstracted", "Base", "Default", "Internal", "Core", "Enhanced", "Optimized",
     "Legacy", "Modern", "Enterprise", "Cloud", "Distributed", "Scalable",
     "Dynamic", "Static", "Global", "Local", "Custom", "Generic", "Standard",
+    "Functional", "Ergonomic", "Parent", "Multithreaded", "Asynchoronous",
+    "Synchronous", "Objective", "Logical", "Optimal", "Parallel", "Procedural",
+    "Ducktyping", "Patching", "Concrete", "Advanced", "Suboptimal", "Interprocess",
+    "Disposable", "Microserviced", "Macroserviced", "Terminal", "Console", 
 ]
 
 CORPORATE_NOUNS = [
@@ -16,6 +20,8 @@ CORPORATE_NOUNS = [
     "Delegate", "Registry", "Configurator", "Initializer", "Serializer",
     "Deserializer", "Converter", "Mapper", "Wrapper", "Connector",
     "Bean", "Module", "Component", "Endpoint", "Gateway", "Middleware",
+    "Instantiator", "Functor", "Collector", "Enumerator", "Monad", 
+    "Destructor", "Constructor", "Sender", "Reciever", "Locator", "Viewmodel",
 ]
 
 CORPORATE_SUFFIXES = [
@@ -23,6 +29,7 @@ CORPORATE_SUFFIXES = [
     "Config", "Context", "State", "Result", "Response", "Request",
     "Exception", "Error", "Type", "Kind", "Spec", "Definition", "Descriptor",
     "Info", "Data", "Model", "Entity", "Record", "Value", "Pair",
+    "Warning", "Option", "Enum", "Struct", "Class", "Object", "Instance",
 ]
 
 CHAOS_WORDS = [
@@ -34,12 +41,15 @@ CHAOS_WORDS = [
     "Chungus", "Dank", "Stonks", "Bonk", "Oof", "Yoink", "Sheesh",
     "Drip", "Glizzy", "Goated", "Slaps", "Hits", "Bussin",
     "xX_Destroyer_Xx", "L_plus_ratio", "skill_issue", "no_bitches",
+    "Edgelord", "Beta", "Alpha", "Vent", "Amogus", "Unc", "Auramax",
+    "SixSeven", "xxx_69", "kamehameha", "Boi", "Doge", "Icky",
 ]
 
 CHAOS_PREFIXES = [
     "Ultra", "Mega", "Giga", "Hyper", "Super", "Turbo", "Maximum",
     "Extreme", "Absolute", "Total", "Final", "Ultimate", "Supreme",
     "Legendary", "Mythical", "Ascended", "Transcendent", "Omega",
+    "Chad", "Ultradank", "SuperBased", "Reworked", "Finalest"
 ]
 
 CORPORATE_METHODS = [
@@ -58,7 +68,10 @@ CHAOS_METHODS = [
     "todo_fix_later", "hack_around_it", "ship_it", "lgtm", "works_on_my_machine",
     "dont_touch_this", "here_be_dragons", "abandon_all_hope", "cry",
     "pray_to_the_machine_spirit", "sacrifice_to_the_compiler", "cope",
-    "seethe", "mald", "touch_grass", "go_outside",
+    "seethe", "mald", "touch_grass", "go_outside", "wdym", "fml",
+    "gae", "pure_bs", "hack_upon_hack", "hack_list_dictionary",
+    "i_have_given_up", "please_work_this_time", "i_hate_my_life",
+    "ultra_sphagetti", "bug_driven_function", "make_it_stop_please",
 ]
 
 CORPORATE_VARS = [
@@ -67,6 +80,7 @@ CORPORATE_VARS = [
     "entity", "record", "entry", "instance", "reference", "target",
     "source", "destination", "input_data", "output_data", "buffer",
     "cache_entry", "metadata", "payload", "params", "options", "settings",
+    "argument", "parameter", "raw_data", "temp_field", "ref_pointer",
 ]
 
 CHAOS_VARS = [
@@ -75,6 +89,9 @@ CHAOS_VARS = [
     "dont_ask", "legacy_pain", "tech_debt", "god_object", "spaghetti",
     "yolo_var", "fix_me_please", "cursed_value", "forbidden_knowledge",
     "the_darkness", "eldritch_data", "haunted_reference", "it_lives",
+    "what", "this", "variable", "ii", "iii", "value", "variable_value",
+    "unmut_var", "whatever", "somedata", "idk_idc", "aaa", "aaaa", "asdasfasd",
+    "stupid", "dict", "list_of_list", "ptr_ref_list_map", "temp"
 ]
 
 
