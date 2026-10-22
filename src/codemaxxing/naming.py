@@ -1,179 +1,165 @@
+"""Core generation pipeline for codemaxxing.
+
+This module selects the active generator strategy, creates files until the
+requested line target is reached, and writes generated output to disk.
+"""
+
+import os
 import random
 
-CORPORATE_PREFIXES = [
-    "Abstracted", "Base", "Default", "Internal", "Core", "Enhanced", "Optimized",
-    "Legacy", "Modern", "Enterprise", "Cloud", "Distributed", "Scalable",
-    "Dynamic", "Static", "Global", "Local", "Custom", "Generic", "Standard",
-    "Functional", "Ergonomic", "Parent", "Multithreaded", "Asynchoronous",
-    "Synchronous", "Objective", "Logical", "Optimal", "Parallel", "Procedural",
-    "Ducktyping", "Patching", "Concrete", "Advanced", "Suboptimal", "Interprocess",
-    "Disposable", "Microserviced", "Macroserviced", "Terminal", "Console", 
-]
+from collections import defaultdict
 
-CORPORATE_NOUNS = [
-    "Singleton", "Factory", "Builder", "Proxy", "Adapter", "Decorator",
-    "Observer", "Strategy", "Command", "Mediator", "Facade", "Bridge",
-    "Composite", "Iterator", "Visitor", "Prototype", "Flyweight", "Chain",
-    "Handler", "Service", "Manager", "Controller", "Repository", "Provider",
-    "Orchestrator", "Coordinator", "Validator", "Transformer", "Resolver",
-    "Dispatcher", "Interceptor", "Aggregator", "Processor", "Pipeline",
-    "Delegate", "Registry", "Configurator", "Initializer", "Serializer",
-    "Deserializer", "Converter", "Mapper", "Wrapper", "Connector",
-    "Bean", "Module", "Component", "Endpoint", "Gateway", "Middleware",
-    "Instantiator", "Functor", "Collector", "Enumerator", "Monad", 
-    "Destructor", "Constructor", "Sender", "Reciever", "Locator", "Viewmodel",
-]
-
-CORPORATE_SUFFIXES = [
-    "Impl", "Base", "Abstract", "Interface", "Helper", "Util", "Utils",
-    "Config", "Context", "State", "Result", "Response", "Request",
-    "Exception", "Error", "Type", "Kind", "Spec", "Definition", "Descriptor",
-    "Info", "Data", "Model", "Entity", "Record", "Value", "Pair",
-    "Warning", "Option", "Enum", "Struct", "Class", "Object", "Instance",
-]
-
-CHAOS_WORDS = [
-    "Skibidi", "Ligma", "Yeet", "Bruh", "Sigma", "Rizz", "Gyatt",
-    "Bussin", "NoCap", "Sus", "Slay", "Vibe", "Ohio", "Fanum",
-    "Griddy", "Mewing", "Edging", "Gooning", "Aura", "Delulu",
-    "Sussy", "Baka", "Poggers", "Copium", "Hopium", "Malding",
-    "Gigachad", "Based", "Cringe", "Ratio", "Deadass", "Noob",
-    "Chungus", "Dank", "Stonks", "Bonk", "Oof", "Yoink", "Sheesh",
-    "Drip", "Glizzy", "Goated", "Slaps", "Hits", "Bussin",
-    "xX_Destroyer_Xx", "L_plus_ratio", "skill_issue", "no_bitches",
-    "Edgelord", "Beta", "Alpha", "Vent", "Amogus", "Unc", "Auramax",
-    "SixSeven", "xxx_69", "kamehameha", "Boi", "Doge", "Icky",
-]
-
-CHAOS_PREFIXES = [
-    "Ultra", "Mega", "Giga", "Hyper", "Super", "Turbo", "Maximum",
-    "Extreme", "Absolute", "Total", "Final", "Ultimate", "Supreme",
-    "Legendary", "Mythical", "Ascended", "Transcendent", "Omega",
-    "Chad", "Ultradank", "SuperBased", "Reworked", "Finalest"
-]
-
-CORPORATE_METHODS = [
-    "process", "handle", "execute", "validate", "transform", "convert",
-    "initialize", "configure", "register", "resolve", "dispatch", "notify",
-    "aggregate", "compute", "evaluate", "serialize", "deserialize", "parse",
-    "render", "build", "create", "destroy", "update", "delete", "fetch",
-    "load", "save", "persist", "cache", "invalidate", "refresh", "sync",
-    "authenticate", "authorize", "encrypt", "decrypt", "compress", "decompress",
-    "normalize", "denormalize", "sanitize", "format", "marshal", "unmarshal",
-]
-
-CHAOS_METHODS = [
-    "yeet", "yoink", "vibe_check", "rizz_up", "no_cap", "bussin_fr",
-    "do_the_thing", "idk_what_this_does", "please_work", "trust_me_bro",
-    "todo_fix_later", "hack_around_it", "ship_it", "lgtm", "works_on_my_machine",
-    "dont_touch_this", "here_be_dragons", "abandon_all_hope", "cry",
-    "pray_to_the_machine_spirit", "sacrifice_to_the_compiler", "cope",
-    "seethe", "mald", "touch_grass", "go_outside", "wdym", "fml",
-    "gae", "pure_bs", "hack_upon_hack", "hack_list_dictionary",
-    "i_have_given_up", "please_work_this_time", "i_hate_my_life",
-    "ultra_sphagetti", "bug_driven_function", "make_it_stop_please",
-]
-
-CORPORATE_VARS = [
-    "result", "value", "data", "response", "request", "context", "config",
-    "state", "status", "count", "index", "item", "element", "node",
-    "entity", "record", "entry", "instance", "reference", "target",
-    "source", "destination", "input_data", "output_data", "buffer",
-    "cache_entry", "metadata", "payload", "params", "options", "settings",
-    "argument", "parameter", "raw_data", "temp_field", "ref_pointer",
-]
-
-CHAOS_VARS = [
-    "thingy", "stuff", "whatever", "idk", "bruh", "x", "xx", "xxx",
-    "temp_but_permanent", "this_shouldnt_work", "magic_number",
-    "dont_ask", "legacy_pain", "tech_debt", "god_object", "spaghetti",
-    "yolo_var", "fix_me_please", "cursed_value", "forbidden_knowledge",
-    "the_darkness", "eldritch_data", "haunted_reference", "it_lives",
-    "what", "this", "variable", "ii", "iii", "value", "variable_value",
-    "unmut_var", "whatever", "somedata", "idk_idc", "aaa", "aaaa", "asdasfasd",
-    "stupid", "dict", "list_of_list", "ptr_ref_list_map", "temp"
-]
+from codemaxxing.config import GenerationConfig
+from codemaxxing.generators import get_generators
+from codemaxxing.generators.base import GeneratedFile
+from codemaxxing.generators.base import SlopGenerator
 
 
-def _blend(corporate_list: list[str], chaos_list: list[str], sanity: float) -> str:
-    if random.random() < sanity:
-        return random.choice(corporate_list)
-    return random.choice(chaos_list)
+def _generator_sequence(
+    generators: list[SlopGenerator],
+    count: int,
+    start_offset: int = 0,
+) -> list[SlopGenerator]:
+    """Build a deterministic sequence of generators with rotation support.
+
+    Args:
+        generators: The active generator set.
+        count: Desired number of generators in the sequence.
+        start_offset: Offset used to rotate the starting position.
+
+    Returns:
+        A rotated list of generator instances.
+    """
+    if not generators or count <= 0:
+        return []
+
+    sequence: list[SlopGenerator] = []
+    ordered = generators[:]
+    rotation = start_offset % len(ordered)
+    ordered = ordered[rotation:] + ordered[:rotation]
+
+    while len(sequence) < count:
+        if len(sequence) < len(ordered):
+            sequence.append(ordered[len(sequence)])
+        else:
+            sequence.append(random.choice(generators))
+
+    return sequence
 
 
-def class_name(sanity: float) -> str:
-    parts = []
-    num_parts = random.randint(2, 4) if sanity > 0.5 else random.randint(1, 3)
-    if random.random() < sanity:
-        parts.append(random.choice(CORPORATE_PREFIXES))
-    for _ in range(num_parts):
-        parts.append(_blend(CORPORATE_NOUNS, CHAOS_WORDS, sanity))
-    if random.random() < sanity * 0.7:
-        parts.append(random.choice(CORPORATE_SUFFIXES))
-    return "".join(parts)
+def generate(config: GenerationConfig) -> list[GeneratedFile]:
+    """Generate a list of files that meets the requested line target.
+
+    Args:
+        config: Runtime generation configuration.
+
+    Returns:
+        A list of generated file descriptors ready to be written to disk.
+    """
+    generators = get_generators(config.lang)
+    files: list[GeneratedFile] = []
+    total_lines = 0
+    file_index = 0
+
+    if config.lang == "all":
+        guaranteed = _generator_sequence(generators, len(generators))
+        for gen in guaranteed:
+            result = gen.generate(config.sanity, file_index)
+            files.append(result)
+            total_lines += result.line_count
+            file_index += 1
+
+    while total_lines < config.lines:
+        gen = random.choice(generators)
+        result = gen.generate(config.sanity, file_index)
+        files.append(result)
+        total_lines += result.line_count
+        file_index += 1
+
+    return files
 
 
-def method_name(sanity: float) -> str:
-    return _blend(CORPORATE_METHODS, CHAOS_METHODS, sanity)
+def generate_batch(config: GenerationConfig, batch_size: int, start_index: int) -> list[GeneratedFile]:
+    """Generate a compact batch of files for turbo mode.
+
+    Args:
+        config: Runtime generation configuration.
+        batch_size: Number of files to emit in this batch.
+        start_index: Starting file index to use for naming.
+
+    Returns:
+        A list of generated file descriptors.
+    """
+    generators = get_generators(config.lang)
+    files: list[GeneratedFile] = []
+    sequence: list[SlopGenerator] = []
+
+    if config.lang == "all":
+        sequence = _generator_sequence(generators, batch_size, start_index)
+
+    for i in range(batch_size):
+        gen = random.choice(generators)
+        if sequence:
+            gen = sequence[i]
+        result = gen.generate(config.sanity, start_index + i)
+        files.append(result)
+
+    return files
 
 
-def var_name(sanity: float) -> str:
-    return _blend(CORPORATE_VARS, CHAOS_VARS, sanity)
+def _write_manifest(files: list[GeneratedFile], output_dir: str, total_lines: int) -> None:
+    """Write a summary manifest describing generated files and line counts."""
+    by_language: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "lines": 0})
+    for generated in files:
+        language = generated.filename.split("/", 1)[0]
+        by_language[language]["files"] += 1
+        by_language[language]["lines"] += generated.line_count
 
-
-def java_package(sanity: float) -> str:
-    if sanity > 0.5:
-        domains = ["com", "org", "io", "net"]
-        companies = ["enterprise", "megacorp", "synergy", "cloudscale", "dataflow"]
-        modules = ["core", "service", "util", "framework", "platform", "engine"]
-        return f"{random.choice(domains)}.{random.choice(companies)}.{random.choice(modules)}"
-    else:
-        return f"com.{random.choice(CHAOS_WORDS).lower()}.{random.choice(CHAOS_WORDS).lower()}"
-
-
-def go_package(sanity: float) -> str:
-    if sanity > 0.5:
-        return random.choice(["service", "handler", "middleware", "repository", "controller", "util"])
-    return random.choice(["yeet", "bruh", "skibidi", "sus", "ohio", "rizz"])
-
-
-def commit_message(sanity: float, commit_num: int) -> str:
-    corporate_messages = [
-        "refactor(core): extract AbstractFactoryProvider into dedicated module",
-        "feat(auth): implement singleton proxy delegation layer",
-        "chore: update dependency injection configuration",
-        "fix(service): resolve race condition in concurrent handler pool",
-        "perf: optimize AbstractBeanFactoryManagerImpl initialization",
-        "refactor: consolidate redundant orchestration middleware layers",
-        "feat(api): add enterprise-grade validation pipeline",
-        "chore(build): update artifact deployment configuration",
-        "fix: correct edge case in distributed state synchronization",
-        "refactor(patterns): migrate to AbstractStrategyVisitorBridge",
-        "feat: implement cloud-native microservice mesh controller",
-        "docs: update architecture decision records for Q4 initiative",
+    manifest_lines = [
+        "# codemaxxing manifest",
+        "",
+        f"total files: {len(files)}",
+        f"total lines: {total_lines}",
+        "",
+        "## language breakdown",
+        "",
     ]
+    for language in sorted(by_language):
+        entry = by_language[language]
+        manifest_lines.append(
+            f"- {language}: {entry['files']} files / {entry['lines']} lines"
+        )
 
-    chaos_messages = [
-        "yolo",
-        "i have no idea what this does",
-        "please mass of code, you WILL compile",
-        f"skibidi commit #{commit_num}",
-        "bruh",
-        "trust me bro",
-        "it works on my machine",
-        "LGTM",
-        "shipped",
-        "oops",
-        "aaaaaaaaaaa",
-        "no thoughts head empty",
-        "vibe coded this",
-        "the voices told me to commit",
-        "if you're reading this, i'm sorry",
-        "TODO: understand what any of this does",
-        f"commit {commit_num} of mass pain",
-        "added more lines because more is better",
-        "i am mass of code. i am inevitable.",
-        "this is fine 🔥",
-    ]
+    manifest_lines.extend([
+        "",
+        "## generated files",
+        "",
+    ])
+    for generated in files:
+        manifest_lines.append(f"- {generated.filename} ({generated.line_count} lines)")
 
-    return _blend(corporate_messages, chaos_messages, sanity)
+    manifest_path = os.path.join(output_dir, "codemaxxing_manifest.md")
+    with open(manifest_path, "w") as manifest:
+        manifest.write("\n".join(manifest_lines) + "\n")
+
+
+def write_files(files: list[GeneratedFile], output_dir: str) -> int:
+    """Persist generated file objects to disk and return their total size.
+
+    Args:
+        files: Generated file descriptors to write.
+        output_dir: Destination folder for the generated output.
+
+    Returns:
+        The cumulative number of lines written.
+    """
+    total_lines = 0
+    for f in files:
+        path = os.path.join(output_dir, f.filename)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as fh:
+            fh.write(f.content)
+        total_lines += f.line_count
+
+    _write_manifest(files, output_dir, total_lines)
+    return total_lines

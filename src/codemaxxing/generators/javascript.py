@@ -1,3 +1,9 @@
+"""Enterprise-style Python slop generator.
+
+This module emits large, overengineered Python files with metaclasses, enums,
+abstract base classes, and other faux-enterprise patterns.
+"""
+
 import random
 from io import StringIO
 
@@ -5,119 +11,143 @@ from codemaxxing.generators.base import SlopGenerator, GeneratedFile
 from codemaxxing import naming, comments
 
 
-class JavaScriptGenerator(SlopGenerator):
-    name = "javascript"
-    language = "javascript"
-    extension = ".js"
+class EnterprisePythonGenerator(SlopGenerator):
+    """Generate a large Python file full of enterprise-style boilerplate."""
+
+    name = "enterprise_python"
+    language = "python"
+    extension = ".py"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Produce one enterprise-themed Python source file."""
         buf = StringIO()
-        use_ts = random.random() < 0.4
-        ext = ".ts" if use_ts else ".js"
-        module_name = naming.class_name(sanity)
+        cname = naming.class_name(sanity)
+        module_name = cname.lower()
 
-        # mixed imports (require + import at low sanity)
-        buf.write(f"// {comments.comment(sanity)}\n")
-        buf.write(f"'use strict';\n\n")
+        buf.write(f'"""\n{comments.docstring(sanity, cname)}\n\n')
+        buf.write(f"This module provides the {cname} implementation\n")
+        buf.write(f"for enterprise-grade workflow orchestration.\n")
+        buf.write(f'"""\n\n')
 
-        num_imports = random.randint(8, 20)
-        for _ in range(num_imports):
-            imp_name = naming.class_name(sanity)
-            if sanity < 0.3 and random.random() < 0.5:
-                buf.write(f"const {imp_name} = require('./{naming.class_name(sanity)}');\n")
-            else:
-                buf.write(f"import {{ {imp_name} }} from './{naming.class_name(sanity)}';\n")
+        stdlib_imports = [
+            "from abc import ABC, abstractmethod",
+            "from typing import Any, Optional, Union, Protocol, TypeVar, Generic",
+            "from dataclasses import dataclass, field",
+            "from functools import wraps, lru_cache",
+            "from enum import Enum, auto",
+            "import logging",
+            "import sys",
+            "import os",
+            "from collections import defaultdict",
+            "from contextlib import contextmanager",
+        ]
+        for imp in random.sample(stdlib_imports, random.randint(4, len(stdlib_imports))):
+            buf.write(f"{imp}\n")
         buf.write("\n")
 
-        # TypeScript types (if TS or sometimes anyway because chaos)
-        if use_ts or sanity < 0.3:
-            num_types = random.randint(3, 8)
-            for _ in range(num_types):
-                tname = naming.class_name(sanity) + "Type"
-                if random.random() < 0.5:
-                    buf.write(f"type {tname} = {{\n")
-                    for _ in range(random.randint(3, 8)):
-                        buf.write(f"  {naming.var_name(sanity)}: {random.choice(['string', 'number', 'boolean', 'any', 'unknown', 'never', 'void', 'null | undefined'])};\n")
-                    buf.write(f"}};\n\n")
-                else:
-                    inner = naming.class_name(sanity) + "Type"
-                    buf.write(f"type {tname} = {{ value: {inner} | null | undefined | {tname} }};\n\n")
+        buf.write(f"T = TypeVar('T')\n")
+        buf.write(f"U = TypeVar('U')\n")
+        for _ in range(random.randint(2, 5)):
+            alias_name = naming.class_name(sanity) + "Type"
+            buf.write(f"{alias_name} = Union[dict[str, Any], list[Any], None]\n")
+        buf.write("\n")
+        buf.write(f"logger = logging.getLogger(__name__)\n\n")
 
-        # massive switch statement
-        buf.write(f"// {comments.comment(sanity)}\n")
-        switch_func = naming.method_name(sanity)
-        buf.write(f"function {switch_func}(input) {{\n")
-        buf.write(f"  switch (input) {{\n")
-        num_cases = random.randint(20, 50)
-        for i in range(num_cases):
-            case_val = random.choice([f"'{naming.var_name(sanity)}'", str(random.randint(0, 999)), f"'{random.choice(naming.CHAOS_WORDS)}'"])
-            buf.write(f"    case {case_val}:\n")
-            buf.write(f"      console.log('{naming.var_name(sanity)}'); // {comments.comment(sanity)}\n")
-            buf.write(f"      break;\n")
-        buf.write(f"    default:\n")
-        buf.write(f"      return null; // {comments.comment(sanity)}\n")
-        buf.write(f"  }}\n")
-        buf.write(f"}}\n\n")
+        meta_name = naming.class_name(sanity) + "Meta"
+        buf.write(f"\nclass {meta_name}(type):\n")
+        buf.write(f'    """{comments.docstring(sanity, meta_name)}"""\n\n')
+        buf.write(f"    _instances: dict[type, Any] = {{}}\n\n")
+        buf.write(f"    def __call__(cls, *args: Any, **kwargs: Any) -> Any:\n")
+        buf.write(f"        if cls not in cls._instances:\n")
+        buf.write(f"            cls._instances[cls] = super().__call__(*args, **kwargs)\n")
+        buf.write(f"        return cls._instances[cls]\n\n")
 
-        # callback hell
-        buf.write(f"// {comments.comment(sanity)}\n")
-        callback_func = naming.method_name(sanity)
-        buf.write(f"function {callback_func}(callback) {{\n")
-        depth = random.randint(5, 10)
-        for d in range(depth):
-            indent = "  " * (d + 1)
-            vname = naming.var_name(sanity)
-            buf.write(f"{indent}setTimeout(function() {{\n")
-            buf.write(f"{indent}  var {vname} = null; // {comments.comment(sanity)}\n")
-            buf.write(f"{indent}  console.log('{naming.var_name(sanity)}');\n")
-        for d in range(depth, 0, -1):
-            indent = "  " * d
-            buf.write(f"{indent}}}, {random.randint(0, 5000)});\n")
-        buf.write(f"}}\n\n")
-
-        # promise chain
-        buf.write(f"// {comments.comment(sanity)}\n")
-        promise_func = naming.method_name(sanity)
-        buf.write(f"function {promise_func}() {{\n")
-        buf.write(f"  return new Promise((resolve, reject) => {{\n")
-        buf.write(f"    resolve(undefined);\n")
-        buf.write(f"  }})\n")
-        chain_len = random.randint(5, 15)
-        for _ in range(chain_len):
-            vname = naming.var_name(sanity)
-            buf.write(f"    .then(({vname}) => {{\n")
-            buf.write(f"      // {comments.comment(sanity)}\n")
-            buf.write(f"      return {vname};\n")
-            buf.write(f"    }})\n")
-        buf.write(f"    .catch((err) => {{\n")
-        buf.write(f"      // {comments.comment(sanity)}\n")
-        buf.write(f"      return null;\n")
-        buf.write(f"    }});\n")
-        buf.write(f"}}\n\n")
-
-        # class with methods that do nothing
-        buf.write(f"class {module_name} {{\n")
-        buf.write(f"  constructor() {{\n")
-        num_props = random.randint(5, 12)
-        for _ in range(num_props):
-            buf.write(f"    this.{naming.var_name(sanity)} = null;\n")
-        buf.write(f"  }}\n\n")
-
-        num_methods = random.randint(4, 10)
-        for _ in range(num_methods):
+        abc_name = "Abstract" + naming.class_name(sanity)
+        buf.write(f"\nclass {abc_name}(ABC):\n")
+        buf.write(f'    """{comments.docstring(sanity, abc_name)}"""\n\n')
+        num_abstract = random.randint(3, 7)
+        for _ in range(num_abstract):
             mname = naming.method_name(sanity)
-            params = ", ".join(naming.var_name(sanity) for _ in range(random.randint(0, 4)))
-            buf.write(f"  // {comments.comment(sanity)}\n")
-            buf.write(f"  {mname}({params}) {{\n")
-            for _ in range(random.randint(2, 6)):
-                buf.write(f"    const {naming.var_name(sanity)} = null; // {comments.comment(sanity)}\n")
-            buf.write(f"    return undefined;\n")
-            buf.write(f"  }}\n\n")
-        buf.write(f"}}\n\n")
+            params = ", ".join(
+                f"{naming.var_name(sanity)}: Any"
+                for _ in range(random.randint(1, 4))
+            )
+            buf.write(f"    @abstractmethod\n")
+            buf.write(f"    def {mname}(self, {params}) -> Any:\n")
+            buf.write(f"        # {comments.comment(sanity)}\n")
+            buf.write(f"        ...\n\n")
 
-        buf.write(f"module.exports = {{ {module_name}, {switch_func}, {callback_func}, {promise_func} }};\n")
+        enum_name = naming.class_name(sanity) + "Status"
+        buf.write(f"\nclass {enum_name}(Enum):\n")
+        buf.write(f'    """{comments.docstring(sanity, enum_name)}"""\n\n')
+        enum_values = ["PENDING", "ACTIVE", "PROCESSING", "VALIDATING", "TRANSFORMING",
+                       "ORCHESTRATING", "DELEGATING", "RESOLVING", "FINALIZING", "COMPLETED",
+                       "FAILED", "RETRYING", "CANCELLED", "DEPRECATED", "UNKNOWN",
+                       "ASCENDING", "TRANSCENDING", "VIBING", "EXISTING"]
+        for val in random.sample(enum_values, random.randint(6, min(15, len(enum_values)))):
+            buf.write(f"    {val} = auto()\n")
+        buf.write("\n")
+
+        buf.write(f"\nclass {cname}({abc_name}, metaclass={meta_name}):\n")
+        buf.write(f'    """\n    {comments.docstring(sanity, cname)}\n\n')
+        for line in comments.block_comment(sanity, "   "):
+            buf.write(f"    {line}\n")
+        buf.write(f'    """\n\n')
+
+        num_params = random.randint(8, 15)
+        params_list = [f"{naming.var_name(sanity)}: Any = None" for _ in range(num_params)]
+        buf.write(f"    def __init__(\n")
+        buf.write(f"        self,\n")
+        for p in params_list:
+            buf.write(f"        {p},\n")
+        buf.write(f"    ) -> None:\n")
+        buf.write(f'        """{comments.docstring(sanity, "__init__")}"""\n')
+        for p in params_list:
+            pname = p.split(":")[0]
+            buf.write(f"        self._{pname} = {pname}\n")
+        buf.write(f"        self._initialized = True\n")
+        buf.write(f"        self._state = {enum_name}.PENDING\n")
+        buf.write(f"        logger.info(f'Initialized {cname}')\n\n")
+
+        for p in params_list[:5]:
+            pname = p.split(":")[0]
+            buf.write(f"    @property\n")
+            buf.write(f"    def {pname}(self) -> Any:\n")
+            buf.write(f"        # {comments.comment(sanity)}\n")
+            buf.write(f"        return self._{pname}\n\n")
+            buf.write(f"    @{pname}.setter\n")
+            buf.write(f"    def {pname}(self, value: Any) -> None:\n")
+            buf.write(f"        self._{pname} = value\n\n")
+
+        for _ in range(num_abstract):
+            mname = naming.method_name(sanity)
+            params = ", ".join(
+                f"{naming.var_name(sanity)}: Any"
+                for _ in range(random.randint(1, 3))
+            )
+            buf.write(f"    def {mname}(self, {params}) -> Any:\n")
+            buf.write(f'        """{comments.docstring(sanity, mname)}"""\n')
+            num_body = random.randint(3, 8)
+            for _ in range(num_body):
+                vname = naming.var_name(sanity)
+                buf.write(f"        {vname} = None  # {comments.comment(sanity)}\n")
+            buf.write(f"        return None\n\n")
+
+        buf.write(f"    @classmethod\n")
+        buf.write(f"    def create(cls, **kwargs: Any) -> '{cname}':\n")
+        buf.write(f'        """{comments.docstring(sanity, "create")}"""\n')
+        buf.write(f"        return cls(**kwargs)\n\n")
+
+        buf.write(f"    def __enter__(self) -> '{cname}':\n")
+        buf.write(f"        self._state = {enum_name}.ACTIVE\n")
+        buf.write(f"        return self\n\n")
+        buf.write(f"    def __exit__(self, *args: Any) -> None:\n")
+        buf.write(f"        self._state = {enum_name}.COMPLETED\n\n")
+
+        buf.write(f"    def __repr__(self) -> str:\n")
+        buf.write(f"        return f'{cname}(state={{self._state}})'\n")
 
         content = buf.getvalue()
         line_count = content.count("\n")
-        filename = f"js/{module_name}_{file_index}{ext}"
+        filename = f"python/{module_name}_{file_index}{self.extension}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)

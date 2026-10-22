@@ -1,123 +1,42 @@
-import os
-import random
+"""Runtime configuration for generated slop output.
 
-from collections import defaultdict
+This module defines the centralized configuration object used by the generator
+pipeline and the CLI entry point.
+"""
 
-from codemaxxing.config import GenerationConfig
-from codemaxxing.generators import get_generators
-from codemaxxing.generators.base import GeneratedFile
-from codemaxxing.generators.base import SlopGenerator
+from dataclasses import dataclass
 
 
-def _generator_sequence(
-    generators: list[SlopGenerator],
-    count: int,
-    start_offset: int = 0,
-) -> list[SlopGenerator]:
-    if not generators or count <= 0:
-        return []
+@dataclass
+class GenerationConfig:
+    """Describe how a generated slop session should behave.
 
-    sequence: list[SlopGenerator] = []
-    ordered = generators[:]
-    rotation = start_offset % len(ordered)
-    ordered = ordered[rotation:] + ordered[:rotation]
+    Attributes:
+        lines: Target total number of lines to generate.
+        sanity: Ratio between 0.0 and 1.0 controlling corporate vs chaotic tone.
+        lang: Language identifier or `all`.
+        output_dir: Directory where generated files are written.
+        turbo: Whether to run the turbo generation loop.
+        enterprise: Whether to scale generation by 10x.
+        batch_size: Number of files per turbo batch.
+        push_every: Automatically push every N commits.
+        forever: Keep generating until interrupted.
+        branch: Existing branch to use when running in CI or projection mode.
+    """
 
-    while len(sequence) < count:
-        if len(sequence) < len(ordered):
-            sequence.append(ordered[len(sequence)])
-        else:
-            sequence.append(random.choice(generators))
+    lines: int = 10000
+    sanity: float = 0.5  # 0.0 = full chaos, 1.0 = corporate cringe
+    lang: str = "all"
+    output_dir: str = "./output"
+    turbo: bool = False
+    enterprise: bool = False
+    batch_size: int = 15
+    push_every: int = 0  # auto-push every N commits (0 = never)
+    forever: bool = False  # run indefinitely
+    branch: str = ""  # use existing branch instead of creating new one
 
-    return sequence
-
-
-
-def generate(config: GenerationConfig) -> list[GeneratedFile]:
-    generators = get_generators(config.lang)
-    files: list[GeneratedFile] = []
-    total_lines = 0
-    file_index = 0
-
-    if config.lang == "all":
-        guaranteed = _generator_sequence(generators, len(generators))
-        for gen in guaranteed:
-            result = gen.generate(config.sanity, file_index)
-            files.append(result)
-            total_lines += result.line_count
-            file_index += 1
-
-    while total_lines < config.lines:
-        gen = random.choice(generators)
-        result = gen.generate(config.sanity, file_index)
-        files.append(result)
-        total_lines += result.line_count
-        file_index += 1
-
-    return files
-
-
-def generate_batch(config: GenerationConfig, batch_size: int, start_index: int) -> list[GeneratedFile]:
-    generators = get_generators(config.lang)
-    files: list[GeneratedFile] = []
-    sequence: list[SlopGenerator] = []
-
-    if config.lang == "all":
-        sequence = _generator_sequence(generators, batch_size, start_index)
-
-    for i in range(batch_size):
-        gen = random.choice(generators)
-        if sequence:
-            gen = sequence[i]
-        result = gen.generate(config.sanity, start_index + i)
-        files.append(result)
-
-    return files
-
-
-def _write_manifest(files: list[GeneratedFile], output_dir: str, total_lines: int) -> None:
-    by_language: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "lines": 0})
-    for generated in files:
-        language = generated.filename.split("/", 1)[0]
-        by_language[language]["files"] += 1
-        by_language[language]["lines"] += generated.line_count
-
-    manifest_lines = [
-        "# codemaxxing manifest",
-        "",
-        f"total files: {len(files)}",
-        f"total lines: {total_lines}",
-        "",
-        "## language breakdown",
-        "",
-    ]
-    for language in sorted(by_language):
-        entry = by_language[language]
-        manifest_lines.append(
-            f"- {language}: {entry['files']} files / {entry['lines']} lines"
-        )
-
-    manifest_lines.extend([
-        "",
-        "## generated files",
-        "",
-    ])
-    for generated in files:
-        manifest_lines.append(f"- {generated.filename} ({generated.line_count} lines)")
-
-    manifest_path = os.path.join(output_dir, "codemaxxing_manifest.md")
-    with open(manifest_path, "w") as manifest:
-        manifest.write("\n".join(manifest_lines) + "\n")
-
-
-
-def write_files(files: list[GeneratedFile], output_dir: str) -> int:
-    total_lines = 0
-    for f in files:
-        path = os.path.join(output_dir, f.filename)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as fh:
-            fh.write(f.content)
-        total_lines += f.line_count
-
-    _write_manifest(files, output_dir, total_lines)
-    return total_lines
+    def __post_init__(self):
+        """Clamp the sanity level and apply enterprise scaling."""
+        self.sanity = max(0.0, min(1.0, self.sanity))
+        if self.enterprise:
+            self.lines *= 10
