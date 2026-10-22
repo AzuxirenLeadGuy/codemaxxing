@@ -1,89 +1,121 @@
-import random
+"""Command-line entry point for codemaxxing.
 
-CORPORATE_COMMENTS = [
-    "This method handles the core business logic for the enterprise workflow.",
-    "DO NOT MODIFY - This is load-bearing architecture.",
-    "Implements the AbstractFactory pattern for maximum extensibility.",
-    "This class follows the Single Responsibility Principle (it has one responsibility: being enormous).",
-    "TODO: Refactor this in Q3 (written in 2019).",
-    "Per the architecture review board decision ARB-2847.",
-    "This satisfies requirement REQ-ENTERPRISE-4392.",
-    "Optimized for enterprise-grade throughput.",
-    "Thread-safe implementation using the double-checked locking pattern.",
-    "This is a critical path component - do not remove without VP approval.",
-    "Legacy code - here be dragons.",
-    "Reviewed and approved by the Technical Steering Committee.",
-    "This abstraction layer provides necessary indirection for future scalability.",
-    "Conforms to ISO 27001 compliance requirements.",
-    "Part of the microservice decomposition initiative (Phase 7 of 12).",
-    "This was the simplest solution after 6 months of design review.",
-    "The previous implementation was 3 lines but didn't meet enterprise standards.",
-]
+This module parses the CLI arguments and launches either a standard generation
+run or the turbo mode workflow.
+"""
 
-CHAOS_COMMENTS = [
-    "i dont know what this does but removing it breaks everything",
-    "TODO: figure out why this works",
-    "written at 3am, mass forgive me",
-    "if you're reading this, turn back now",
-    "this function is cursed",
-    "DO NOT TOUCH - last person who modified this quit",
-    "¯\\_(ツ)_/¯",
-    "works on my machine ™",
-    "the compiler demanded a blood sacrifice and this was it",
-    "i asked chatgpt to write this and even it said no",
-    "no tests needed, it's perfect (copium)",
-    "this is load-bearing spaghetti",
-    "abandon all hope ye who enter here",
-    "the code is documentation enough (it is not)",
-    "if this breaks, blame the intern (there is no intern)",
-    "certified bruh moment",
-    "vibe coded, do not question",
-    "i will mass NOT be explaining this in the PR",
-    "skill issue if you can't read this",
-    "past me was a different person and i dont trust them",
-    "this violates at least 3 design patterns and invents 2 new ones",
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    "the mass of code grows. it hungers. it consumes.",
-]
+import argparse
 
-CORPORATE_DOCSTRINGS = [
-    "Initializes the {name} with the specified configuration parameters.",
-    "Processes the incoming request through the validation pipeline.",
-    "Transforms the input data according to the business rules engine.",
-    "Orchestrates the workflow execution across distributed service boundaries.",
-    "Delegates to the underlying implementation for concrete behavior.",
-    "Resolves dependencies through the inversion of control container.",
-    "Validates the state transition according to the finite state machine definition.",
-]
-
-CHAOS_DOCSTRINGS = [
-    "dont ask me what this does because i genuinely do not know",
-    "this function exists because someone said 'just add a wrapper'",
-    "returns something. probably.",
-    "args: stuff. returns: other stuff. raises: your blood pressure.",
-    "TL;DR: it do be doing things tho",
-    "side effects: may cause existential dread",
-    "complexity: O(vibes)",
-    "deprecated since mass birth but still called in 47 places",
-]
+from codemaxxing.config import GenerationConfig
 
 
-def comment(sanity: float) -> str:
-    if random.random() < sanity:
-        return random.choice(CORPORATE_COMMENTS)
-    return random.choice(CHAOS_COMMENTS)
+def main():
+    """Parse CLI arguments and generate output according to the user's settings.
+
+    Returns:
+        None. The command-line tool prints status information while generating
+        files and exits when complete.
+    """
+    parser = argparse.ArgumentParser(
+        prog="codemaxxing",
+        description="Maximize your lines of code. Because quantity IS quality.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "examples:\n"
+            "  codemaxxing --lines 10000 --sanity 100\n"
+            "  codemaxxing --lines 50000 --sanity 0 --lang java\n"
+            "  codemaxxing --lines 100000 --turbo --sanity 50\n"
+            "  codemaxxing --lines 1000 --enterprise\n"
+            "  codemaxxing --turbo --forever --push-every 50 --batch-size 30\n"
+            "  codemaxxing --turbo --forever --branch main --push-every 100\n"
+            "  codemaxxing --lines 25000 --lang rust --sanity 73\n"
+            "  codemaxxing --lines 25000 --lang csharp --sanity 88\n"
+            "  codemaxxing --lines 25000 --lang haskell --sanity 19\n"
+            "  codemaxxing --lines 25000 --lang cpp --sanity 94\n"
+            "  codemaxxing --lines 25000 --lang zig --sanity 82\n"
+            "  codemaxxing --lines 25000 --lang lua --sanity 23\n"
+        ),
+    )
+
+    parser.add_argument(
+        "--lines", type=int, default=10000,
+        help="Target number of lines to generate (default: 10000)",
+    )
+    parser.add_argument(
+        "--sanity", type=int, default=50, choices=range(101),
+        metavar="0-100",
+        help="Chaos level. 100=corporate cringe, 0=full unhinged (default: 50)",
+    )
+    parser.add_argument(
+        "--lang", type=str, default="all",
+        choices=["all", "java", "python", "js", "javascript", "go", "generic"],
+        help="Target language(s) for generated slop (default: all)",
+    )
+    extra_langs = [
+        "rust", "csharp", "cs", "kotlin", "php", "ruby",
+        "haskell", "hs", "c", "cpp", "c++", "swift", "zig", "lua",
+    ]
+    lang_action = next(action for action in parser._actions if "--lang" in action.option_strings)
+    lang_action.choices = list(lang_action.choices) + extra_langs  # ty: ignore[invalid-argument-type]
+    parser.add_argument(
+        "--output", type=str, default="./output",
+        help="Output directory (default: ./output)",
+    )
+    parser.add_argument(
+        "--turbo", action="store_true",
+        help="Turbo mode: generate -> git add -> commit -> repeat",
+    )
+    parser.add_argument(
+        "--enterprise", action="store_true",
+        help="Enterprise mode: 10x line multiplier because enterprise",
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=15,
+        help="Files per commit in turbo mode (default: 15, higher = more lines/commit)",
+    )
+    parser.add_argument(
+        "--push-every", type=int, default=0,
+        help="Auto-push every N commits (default: 0 = manual push)",
+    )
+    parser.add_argument(
+        "--forever", action="store_true",
+        help="Run indefinitely until interrupted (ignores --lines)",
+    )
+    parser.add_argument(
+        "--branch", type=str, default="",
+        help="Use this branch instead of creating slop/session-* (useful for CI)",
+    )
+
+    args = parser.parse_args()
+
+    config = GenerationConfig(
+        lines=args.lines,
+        sanity=args.sanity / 100.0,
+        lang=args.lang,
+        output_dir=args.output,
+        turbo=args.turbo,
+        enterprise=args.enterprise,
+        batch_size=args.batch_size,
+        push_every=args.push_every,
+        forever=args.forever,
+        branch=args.branch,
+    )
+
+    if config.turbo:
+        from codemaxxing.turbo import run_turbo
+        run_turbo(config)
+    else:
+        from codemaxxing.generator import generate, write_files
+        print(f"Generating {config.lines:,} lines of pure slop...")
+        print(f"Sanity: {config.sanity:.0%} | Lang: {config.lang} | Output: {config.output_dir}")
+        print()
+
+        files = generate(config)
+        total = write_files(files, config.output_dir)
+
+        print(f"Done! Generated {total:,} lines across {len(files)} files.")
+        print(f"Output: {config.output_dir}/")
 
 
-def docstring(sanity: float, name: str = "component") -> str:
-    if random.random() < sanity:
-        return random.choice(CORPORATE_DOCSTRINGS).format(name=name)
-    return random.choice(CHAOS_DOCSTRINGS)
-
-
-def block_comment(sanity: float, style: str = "//") -> list[str]:
-    lines = []
-    num_lines = random.randint(2, 6)
-    for _ in range(num_lines):
-        lines.append(f"{style} {comment(sanity)}")
-    return lines
+if __name__ == "__main__":
+    main()

@@ -1,3 +1,5 @@
+"""JavaScript and TypeScript generator for synthetic front-end slop."""
+
 import random
 from io import StringIO
 
@@ -5,147 +7,116 @@ from codemaxxing.generators.base import SlopGenerator, GeneratedFile
 from codemaxxing import naming, comments
 
 
-class GenericGenerator(SlopGenerator):
-    name = "generic"
-    language = "generic"
-    extension = ".py"
+class JavaScriptGenerator(SlopGenerator):
+    """Generate overengineered JavaScript or TypeScript modules."""
+
+    name = "javascript"
+    language = "javascript"
+    extension = ".js"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Produce one JavaScript or TypeScript file with callback and promise chaos."""
         buf = StringIO()
+        use_ts = random.random() < 0.4
+        ext = ".ts" if use_ts else ".js"
+        module_name = naming.class_name(sanity)
 
-        # pick which type of slop to generate
-        slop_type = random.choice(["nested_if", "wrapper_hell", "massive_enum", "fake_tests", "mixed"])
-        cname = naming.class_name(sanity)
+        buf.write(f"// {comments.comment(sanity)}\n")
+        buf.write(f"'use strict';\n\n")
 
-        if slop_type == "nested_if":
-            self._nested_if_else(buf, sanity, cname)
-        elif slop_type == "wrapper_hell":
-            self._wrapper_hell(buf, sanity, cname)
-        elif slop_type == "massive_enum":
-            self._massive_enum(buf, sanity, cname)
-        elif slop_type == "fake_tests":
-            self._fake_tests(buf, sanity, cname)
-        else:
-            self._nested_if_else(buf, sanity, cname)
-            self._wrapper_hell(buf, sanity, cname)
-            self._massive_enum(buf, sanity, cname)
-            self._fake_tests(buf, sanity, cname)
+        num_imports = random.randint(8, 20)
+        for _ in range(num_imports):
+            imp_name = naming.class_name(sanity)
+            if sanity < 0.3 and random.random() < 0.5:
+                buf.write(f"const {imp_name} = require('./{naming.class_name(sanity)}');\n")
+            else:
+                buf.write(f"import {{ {imp_name} }} from './{naming.class_name(sanity)}';\n")
+        buf.write("\n")
+
+        if use_ts or sanity < 0.3:
+            num_types = random.randint(3, 8)
+            for _ in range(num_types):
+                tname = naming.class_name(sanity) + "Type"
+                if random.random() < 0.5:
+                    buf.write(f"type {tname} = {{\n")
+                    for _ in range(random.randint(3, 8)):
+                        buf.write(f"  {naming.var_name(sanity)}: {random.choice(['string', 'number', 'boolean', 'any', 'unknown', 'never', 'void', 'null | undefined'])};\n")
+                    buf.write(f"}};\n\n")
+                else:
+                    inner = naming.class_name(sanity) + "Type"
+                    buf.write(f"type {tname} = {{ value: {inner} | null | undefined | {tname} }};\n\n")
+
+        buf.write(f"// {comments.comment(sanity)}\n")
+        switch_func = naming.method_name(sanity)
+        buf.write(f"function {switch_func}(input) {{\n")
+        buf.write(f"  switch (input) {{\n")
+        num_cases = random.randint(20, 50)
+        for i in range(num_cases):
+            case_val = random.choice([f"'{naming.var_name(sanity)}'", str(random.randint(0, 999)), f"'{random.choice(naming.CHAOS_WORDS)}'"])
+            buf.write(f"    case {case_val}:\n")
+            buf.write(f"      console.log('{naming.var_name(sanity)}'); // {comments.comment(sanity)}\n")
+            buf.write(f"      break;\n")
+        buf.write(f"    default:\n")
+        buf.write(f"      return null; // {comments.comment(sanity)}\n")
+        buf.write(f"  }}\n")
+        buf.write(f"}}\n\n")
+
+        buf.write(f"// {comments.comment(sanity)}\n")
+        callback_func = naming.method_name(sanity)
+        buf.write(f"function {callback_func}(callback) {{\n")
+        depth = random.randint(5, 10)
+        for d in range(depth):
+            indent = "  " * (d + 1)
+            vname = naming.var_name(sanity)
+            buf.write(f"{indent}setTimeout(function() {{\n")
+            buf.write(f"{indent}  var {vname} = null; // {comments.comment(sanity)}\n")
+            buf.write(f"{indent}  console.log('{naming.var_name(sanity)}');\n")
+        for d in range(depth, 0, -1):
+            indent = "  " * d
+            buf.write(f"{indent}}}, {random.randint(0, 5000)});\n")
+        buf.write(f"}}\n\n")
+
+        buf.write(f"// {comments.comment(sanity)}\n")
+        promise_func = naming.method_name(sanity)
+        buf.write(f"function {promise_func}() {{\n")
+        buf.write(f"  return new Promise((resolve, reject) => {{\n")
+        buf.write(f"    resolve(undefined);\n")
+        buf.write(f"  }})\n")
+        chain_len = random.randint(5, 15)
+        for _ in range(chain_len):
+            vname = naming.var_name(sanity)
+            buf.write(f"    .then(({vname}) => {{\n")
+            buf.write(f"      // {comments.comment(sanity)}\n")
+            buf.write(f"      return {vname};\n")
+            buf.write(f"    }})\n")
+        buf.write(f"    .catch((err) => {{\n")
+        buf.write(f"      // {comments.comment(sanity)}\n")
+        buf.write(f"      return null;\n")
+        buf.write(f"    }});\n")
+        buf.write(f"}}\n\n")
+
+        buf.write(f"class {module_name} {{\n")
+        buf.write(f"  constructor() {{\n")
+        num_props = random.randint(5, 12)
+        for _ in range(num_props):
+            buf.write(f"    this.{naming.var_name(sanity)} = null;\n")
+        buf.write(f"  }}\n\n")
+
+        num_methods = random.randint(4, 10)
+        for _ in range(num_methods):
+            mname = naming.method_name(sanity)
+            params = ", ".join(naming.var_name(sanity) for _ in range(random.randint(0, 4)))
+            buf.write(f"  // {comments.comment(sanity)}\n")
+            buf.write(f"  {mname}({params}) {{\n")
+            for _ in range(random.randint(2, 6)):
+                buf.write(f"    const {naming.var_name(sanity)} = null; // {comments.comment(sanity)}\n")
+            buf.write(f"    return undefined;\n")
+            buf.write(f"  }}\n\n")
+        buf.write(f"}}\n\n")
+
+        buf.write(f"module.exports = {{ {module_name}, {switch_func}, {callback_func}, {promise_func} }};\n")
 
         content = buf.getvalue()
         line_count = content.count("\n")
-        filename = f"generic/{cname.lower()}_{file_index}{self.extension}"
+        filename = f"js/{module_name}_{file_index}{ext}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
-
-    def _nested_if_else(self, buf: StringIO, sanity: float, cname: str):
-        buf.write(f"# {comments.comment(sanity)}\n\n\n")
-        func_name = naming.method_name(sanity)
-        buf.write(f"def {func_name}({naming.var_name(sanity)}, {naming.var_name(sanity)}, {naming.var_name(sanity)}):\n")
-        buf.write(f'    """{comments.docstring(sanity, func_name)}"""\n')
-
-        depth = random.randint(10, 20)
-        for d in range(depth):
-            indent = "    " * (d + 1)
-            var = naming.var_name(sanity)
-            condition = random.choice([
-                f"{var} is not None",
-                f"isinstance({var}, object)",
-                f"len(str({var})) > 0",
-                f"{var} != {var}",
-                f"True",
-                f"not False",
-                f"bool({var}) or not bool({var})",
-                f"hash({var}) == hash({var})",
-                f"type({var}) == type({var})",
-            ])
-            buf.write(f"{indent}if {condition}:  # {comments.comment(sanity)}\n")
-            buf.write(f"{indent}    {naming.var_name(sanity)} = None\n")
-
-        # unwind with else clauses
-        for d in range(depth, 0, -1):
-            indent = "    " * d
-            buf.write(f"{indent}else:\n")
-            buf.write(f"{indent}    pass  # {comments.comment(sanity)}\n")
-
-        buf.write(f"    return None\n\n\n")
-
-    def _wrapper_hell(self, buf: StringIO, sanity: float, cname: str):
-        buf.write(f"# {comments.comment(sanity)}\n\n")
-        base_name = naming.method_name(sanity)
-        layers = ["", "Internal", "InternalImpl", "InternalImplV2",
-                   "InternalImplV2Final", "InternalImplV2FinalFinal",
-                   "InternalImplV2FinalFinalForReal", "InternalImplV2FinalFinalForRealThisTime"]
-        num_layers = random.randint(4, len(layers))
-
-        for i in range(num_layers):
-            suffix = layers[i]
-            next_suffix = layers[i + 1] if i + 1 < num_layers else None
-            fname = f"{base_name}{suffix}"
-            params = ", ".join(naming.var_name(sanity) for _ in range(random.randint(1, 4)))
-
-            buf.write(f"def {fname}({params}):\n")
-            buf.write(f'    """{comments.docstring(sanity, fname)}"""\n')
-            buf.write(f"    # {comments.comment(sanity)}\n")
-            for _ in range(random.randint(1, 3)):
-                buf.write(f"    {naming.var_name(sanity)} = None\n")
-
-            if next_suffix is not None:
-                next_name = f"{base_name}{next_suffix}"
-                buf.write(f"    return {next_name}({params})\n\n\n")
-            else:
-                buf.write(f"    return None  # {comments.comment(sanity)}\n\n\n")
-
-    def _massive_enum(self, buf: StringIO, sanity: float, cname: str):
-        buf.write(f"# {comments.comment(sanity)}\n")
-        buf.write(f"from enum import Enum, auto\n\n\n")
-        enum_name = cname + "Type"
-        buf.write(f"class {enum_name}(Enum):\n")
-        buf.write(f'    """{comments.docstring(sanity, enum_name)}"""\n\n')
-
-        num_values = random.randint(50, 100)
-        used_names = set()
-        for i in range(num_values):
-            if sanity > 0.5:
-                parts = [random.choice(naming.CORPORATE_PREFIXES).upper(),
-                         random.choice(naming.CORPORATE_NOUNS).upper()]
-                val_name = "_".join(parts) + f"_{i}"
-            else:
-                val_name = random.choice(naming.CHAOS_WORDS).upper() + f"_{i}"
-            if val_name in used_names:
-                val_name += f"_EXTRA_{i}"
-            used_names.add(val_name)
-            buf.write(f"    {val_name} = auto()  # {comments.comment(sanity)}\n")
-        buf.write("\n\n")
-
-    def _fake_tests(self, buf: StringIO, sanity: float, cname: str):
-        buf.write(f"# {comments.comment(sanity)}\n")
-        buf.write(f"import unittest\n\n\n")
-
-        test_class = f"Test{cname}"
-        buf.write(f"class {test_class}(unittest.TestCase):\n")
-        buf.write(f'    """{comments.docstring(sanity, test_class)}"""\n\n')
-
-        num_tests = random.randint(10, 30)
-        for i in range(num_tests):
-            test_name = naming.method_name(sanity)
-            buf.write(f"    def test_{test_name}_{i}(self):\n")
-            buf.write(f"        # {comments.comment(sanity)}\n")
-
-            num_asserts = random.randint(1, 5)
-            for _ in range(num_asserts):
-                assertion = random.choice([
-                    "self.assertTrue(True)",
-                    "self.assertFalse(False)",
-                    "self.assertEqual(1, 1)",
-                    "self.assertIsNone(None)",
-                    "self.assertIsNotNone(object())",
-                    "self.assertIn(1, [1, 2, 3])",
-                    "self.assertEqual('a', 'a')",
-                    "self.assertGreater(2, 1)",
-                    "self.assertLess(1, 2)",
-                    f"self.assertTrue(True)  # {comments.comment(sanity)}",
-                ])
-                buf.write(f"        {assertion}\n")
-            buf.write("\n")
-
-        buf.write(f"\nif __name__ == '__main__':\n")
-        buf.write(f"    unittest.main()\n\n")
