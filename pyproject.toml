@@ -1,18 +1,56 @@
-[project]
-name = "codemaxxing"
-version = "0.1.0"
-description = "Maximize your lines of code. Because quantity IS quality."
-readme = "README.md"
-license = "MIT"
-requires-python = ">=3.10"
-dependencies = []
+"""Language-specific generator archetypes and defaults."""
 
-[project.scripts]
-codemaxxing = "codemaxxing.cli:main"
+LANGUAGE_ARCHETYPES: dict[str, list[str]] = {
+    "java": ["enterprise", "gateway", "service", "legacy", "microservice"],
+    "python": ["enterprise", "metaclass", "async", "decorator", "chaos"],
+    "js": ["enterprise", "callback-hell", "async", "typescript", "chaos"],
+    "javascript": ["enterprise", "callback-hell", "async", "typescript", "chaos"],
+    "go": ["enterprise", "middleware", "goroutine", "chaos"],
+    "generic": ["nested", "wrapper", "enum", "test-suite", "hybrid"],
+    "rust": ["enterprise", "trait", "async", "memory", "chaos"],
+    "csharp": ["enterprise", "async", "record", "gateway", "chaos"],
+    "cs": ["enterprise", "async", "record", "gateway", "chaos"],
+    "kotlin": ["enterprise", "data-class", "gateway", "async", "chaos"],
+    "php": ["enterprise", "trait", "controller", "queue", "chaos"],
+    "ruby": ["enterprise", "module", "metaprogramming", "chaos"],
+    "haskell": ["enterprise", "typeclass", "pipeline", "monad", "chaos"],
+    "hs": ["enterprise", "typeclass", "pipeline", "monad", "chaos"],
+    "c": ["enterprise", "state-machine", "memory", "protocol", "chaos"],
+    "cpp": ["enterprise", "template", "virtual", "memory", "chaos"],
+    "c++": ["enterprise", "template", "virtual", "memory", "chaos"],
+    "swift": ["enterprise", "protocol", "async", "mvc", "chaos"],
+    "zig": ["enterprise", "allocator", "comptime", "chaos"],
+    "lua": ["enterprise", "metatable", "sandbox", "chaos"],
+    "all": ["enterprise", "hybrid", "chaos"],
+}
 
-[build-system]
-requires = ["setuptools>=68.0"]
-build-backend = "setuptools.build_meta"
+DEFAULT_ARCHETYPES: dict[str, str] = {
+    "java": "enterprise",
+    "python": "enterprise",
+    "js": "enterprise",
+    "javascript": "enterprise",
+    "go": "enterprise",
+    "generic": "hybrid",
+    "rust": "enterprise",
+    "csharp": "enterprise",
+    "cs": "enterprise",
+    "kotlin": "enterprise",
+    "php": "enterprise",
+    "ruby": "enterprise",
+    "haskell": "enterprise",
+    "hs": "enterprise",
+    "c": "state-machine",
+    "cpp": "enterprise",
+    "c++": "enterprise",
+    "swift": "protocol",
+    "zig": "allocator",
+    "lua": "metatable",
+    "all": "hybrid",
+}
 
-[tool.setuptools.packages.find]
-where = ["src"]
+
+def normalize_archetype(language: str, requested: str | None = None) -> str:
+    candidates = LANGUAGE_ARCHETYPES.get(language, [DEFAULT_ARCHETYPES.get(language, "enterprise")])
+    if requested in candidates:
+        return requested
+    return DEFAULT_ARCHETYPES.get(language, "enterprise")

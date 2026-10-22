@@ -1,4 +1,6 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -13,8 +15,10 @@ class GenerationConfig:
     push_every: int = 0  # auto-push every N commits (0 = never)
     forever: bool = False  # run indefinitely
     branch: str = ""  # use existing branch instead of creating new one
+    archetypes: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self):
         self.sanity = max(0.0, min(1.0, self.sanity))
+        self.archetypes = {str(language): str(archetype) for language, archetype in (self.archetypes or {}).items()}
         if self.enterprise:
             self.lines *= 10
