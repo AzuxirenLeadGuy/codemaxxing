@@ -1,3 +1,5 @@
+This repository is forked from jshchnz/codemaxxing
+
 <div align="center">
 
 # codemaxxing
@@ -131,11 +133,11 @@ In `--lang all`, codemaxxing now guarantees every available language gets repres
 
 ## Contributing
 
-We accept all PRs. Literally all of them. The more code, the better.
+Quality reviews are not considered harmful to velocity for this repository. Even for non-essential things, quality matters. PRs will be accepted for the following cases
 
-Quality reviews are considered harmful to velocity.
-
-If your PR *removes* lines of code, it will be mass rejected. We only go up here.
+- Improving the efficiency of outputting code
+- Adding more variation in the output.
+- Specialised structures for a given programming language.
 
 ## FAQ
 
