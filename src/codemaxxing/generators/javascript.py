@@ -53,12 +53,19 @@ class JavaScriptGenerator(SlopGenerator):
         # TypeScript types (if TS or sometimes anyway because chaos)
         if use_ts or sanity < 0.3:
             num_types = random.randint(3, 8)
+            ts_type_options = [
+                'string', 'number', 'boolean', 'any', 'unknown', 'never',
+                'void', 'null | undefined', 'Record<string, unknown>',
+                'Array<string | number>', 'Promise<void>', 'Map<string, any>',
+                'Set<string>', 'symbol', 'bigint', 'Function',
+                'ReadonlyArray<unknown>', 'Uint8Array', 'Error | null',
+            ]
             for _ in range(num_types):
                 tname = naming.class_name(sanity) + "Type"
                 if random.random() < 0.5:
                     buf.write(f"type {tname} = {{\n")
                     for _ in range(random.randint(3, 8)):
-                        buf.write(f"  {naming.var_name(sanity)}: {random.choice(['string', 'number', 'boolean', 'any', 'unknown', 'never', 'void', 'null | undefined'])};\n")
+                        buf.write(f"  {naming.var_name(sanity)}: {random.choice(ts_type_options)};\n")
                     buf.write(f"}};\n\n")
                 else:
                     inner = naming.class_name(sanity) + "Type"
@@ -71,7 +78,13 @@ class JavaScriptGenerator(SlopGenerator):
         buf.write(f"  switch (input) {{\n")
         num_cases = random.randint(20, 50)
         for i in range(num_cases):
-            case_val = random.choice([f"'{naming.var_name(sanity)}'", str(random.randint(0, 999)), f"'{random.choice(naming.CHAOS_WORDS)}'"])
+            case_val = random.choice([
+                f"'{naming.var_name(sanity)}'",
+                str(random.randint(0, 999)),
+                f"'{random.choice(naming.CHAOS_WORDS)}'",
+                f"'event_{naming.method_name(sanity)}'",
+                f"'STATUS_{random.randint(100, 599)}'",
+            ])
             buf.write(f"    case {case_val}:\n")
             buf.write(f"      console.log('{naming.var_name(sanity)}'); // {comments.comment(sanity)}\n")
             buf.write(f"      break;\n")

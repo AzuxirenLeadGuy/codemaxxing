@@ -44,12 +44,21 @@ class CSlopGenerator(SlopGenerator):
         buf.write("#include <stdint.h>\n\n")
 
         buf.write(f"typedef enum {header_guardish}_STATE {{\n")
-        for index, value in enumerate(["PENDING", "RUNNING", "BLOCKED", "DONE", "CURSED", "TRANSCENDENT"]):
+        c_states = [
+            "PENDING", "RUNNING", "BLOCKED", "DONE", "CURSED", "TRANSCENDENT",
+            "INITIALIZING", "DEGRADED", "RECONCILING", "QUARANTINED",
+            "DRAINING", "SUSPENDED", "OPTIMIZED", "CORRUPTED", "TERMINATED",
+        ]
+        for index, value in enumerate(c_states):
             buf.write(f"    {header_guardish}_{value} = {index},\n")
         buf.write(f"}} {header_guardish}_STATE;\n\n")
 
         buf.write(f"typedef struct {struct_name} {{\n")
-        c_types = ["int", "long", "double", "bool", "char *", "void *", "size_t", "uint64_t"]
+        c_types = [
+            "int", "long", "double", "bool", "char *", "void *", "size_t", "uint64_t",
+            "float", "int8_t", "uint8_t", "int16_t", "uint16_t", "int32_t", "uint32_t",
+            "int64_t", "uintptr_t", "short", "unsigned int",
+        ]
         fields = []
         for _ in range(random.randint(10, 16)):
             field_type = random.choice(c_types)

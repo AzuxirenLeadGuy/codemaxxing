@@ -45,7 +45,8 @@ class LuaChaosGenerator(SlopGenerator):
         for _ in range(random.randint(8, 14)):
             buf.write(f"    self.{naming.var_name(sanity)} = nil\n")
         buf.write("    self.telemetry = {}\n")
-        buf.write("    self.state = 'pending'\n")
+        lua_states = ["pending", "initializing", "running", "blocked", "cursed", "transcendent", "yeeted", "vibing", "drained", "quarantined", "reconciling"]
+        buf.write(f"    self.state = '{random.choice(lua_states)}'\n")
         buf.write("    return self\n")
         buf.write("end\n\n")
 
@@ -54,13 +55,14 @@ class LuaChaosGenerator(SlopGenerator):
             arg_names = [naming.var_name(sanity) for _ in range(random.randint(1, 4))]
             buf.write(f"function {table_name}:{method_name}({', '.join(arg_names)})\n")
             buf.write(f"    -- {comments.comment(sanity)}\n")
-            buf.write("    self.state = 'running'\n")
+            buf.write(f"    self.state = '{random.choice(['running', 'processing', 'evaluating', 'mutating', 'vibing'])}'\n")
             for _ in range(random.randint(4, 8)):
                 local_name = naming.var_name(sanity)
                 sample_arg = random.choice(arg_names)
-                buf.write(f"    local {local_name} = {sample_arg} or '{comments.comment(sanity)}'\n")
+                sample_fallback = random.choice([f"'{comments.comment(sanity)}'", str(random.randint(0, 100)), "true", "false", "{}"])
+                buf.write(f"    local {local_name} = {sample_arg} or {sample_fallback}\n")
                 buf.write(f"    table.insert(self.telemetry, tostring({local_name}))\n")
-            buf.write("    self.state = 'complete'\n")
+            buf.write(f"    self.state = '{random.choice(['complete', 'optimized', 'finished', 'transcended', 'drained'])}'\n")
             buf.write("    return self\n")
             buf.write("end\n\n")
 

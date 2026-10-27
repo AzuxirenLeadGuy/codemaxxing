@@ -44,8 +44,10 @@ class GoSlopGenerator(SlopGenerator):
             '"strings"', '"strconv"', '"io"', '"os"', '"log"',
             '"encoding/json"', '"net/http"', '"database/sql"',
             '"crypto/rand"', '"math/big"', '"bytes"',
+            '"math"', '"sync/atomic"', '"bufio"', '"path/filepath"',
+            '"regexp"', '"runtime"',
         ]
-        used = random.sample(go_imports, random.randint(4, 10))
+        used = random.sample(go_imports, random.randint(4, 12))
         buf.write("import (\n")
         for imp in used:
             buf.write(f"\t{imp}\n")
@@ -64,10 +66,14 @@ class GoSlopGenerator(SlopGenerator):
         # massive struct
         buf.write(f"// {comments.comment(sanity)}\n")
         buf.write(f"type {struct_name} struct {{\n")
-        go_types = ["interface{}", "string", "int", "int64", "bool", "float64",
-                     "[]byte", "map[string]interface{}", "chan struct{}",
-                     "context.Context", "*sync.Mutex", "error",
-                     "func() error", "[]interface{}", "*" + naming.class_name(sanity)]
+        go_types = [
+            "interface{}", "string", "int", "int64", "bool", "float64", "uint64",
+            "[]byte", "[]string", "[]int", "map[string]interface{}", "map[string]string",
+            "chan struct{}", "chan bool", "chan int", "context.Context",
+            "*sync.Mutex", "*sync.RWMutex", "sync.WaitGroup", "atomic.Int64",
+            "error", "func() error", "[]interface{}", "*" + naming.class_name(sanity),
+            "time.Time", "time.Duration",
+        ]
         num_fields = random.randint(10, 20)
         field_names = []
         for _ in range(num_fields):
@@ -95,7 +101,11 @@ class GoSlopGenerator(SlopGenerator):
             mname = naming.method_name(sanity)
             mname = mname[0].upper() + mname[1:]
             receiver = struct_name[0].lower()
-            return_type = random.choice(["error", "(interface{}, error)", "(string, error)", "(bool, error)", "(int, error)"])
+            return_type = random.choice([
+                "error", "(interface{}, error)", "(string, error)",
+                "(bool, error)", "(int, error)", "(int64, error)",
+                "([]byte, error)", "([]string, error)", "(map[string]interface{}, error)",
+            ])
 
             buf.write(f"// {mname} {comments.comment(sanity)}\n")
             buf.write(f"func ({receiver} *{struct_name}) {mname}(ctx context.Context) {return_type} {{\n")
@@ -110,7 +120,7 @@ class GoSlopGenerator(SlopGenerator):
                 buf.write(f"\t\treturn nil, nil\n")
                 buf.write(f"\t}}()\n")
                 buf.write(f"\tif {err_var} != nil {{\n")
-                if "interface" in return_type or "string" in return_type:
+                if "interface" in return_type or "string" in return_type or "[]" in return_type or "map" in return_type:
                     buf.write(f"\t\treturn nil, {err_var}\n")
                 elif "bool" in return_type:
                     buf.write(f"\t\treturn false, {err_var}\n")

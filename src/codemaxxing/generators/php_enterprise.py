@@ -40,7 +40,7 @@ class PhpEnterpriseGenerator(SlopGenerator):
 
         buf.write("<?php\n\n")
         buf.write(f"namespace {namespace_name};\n\n")
-        buf.write("use ArrayObject;\nuse DateTimeImmutable;\nuse RuntimeException;\n\n")
+        buf.write("use ArrayObject;\nuse DateTimeImmutable;\nuse RuntimeException;\nuse stdClass;\n\n")
 
         buf.write(f"/**\n * {comments.docstring(sanity, class_name)}\n */\n")
         buf.write(f"interface {interface_name}\n{{\n")
@@ -62,7 +62,10 @@ class PhpEnterpriseGenerator(SlopGenerator):
         buf.write(f"final class {class_name} implements {interface_name}\n{{\n")
         buf.write(f"    use {trait_name};\n\n")
         properties = []
-        php_types = ["string", "int", "bool", "array", "ArrayObject", "DateTimeImmutable"]
+        php_types = [
+            "string", "int", "bool", "float", "array", "ArrayObject",
+            "DateTimeImmutable", "?string", "?int", "?array", "iterable", "object",
+        ]
         for _ in range(random.randint(8, 14)):
             prop_type = random.choice(php_types)
             prop_name = naming.var_name(sanity)
@@ -75,9 +78,15 @@ class PhpEnterpriseGenerator(SlopGenerator):
             "string": "''",
             "int": "0",
             "bool": "false",
+            "float": "0.0",
             "array": "[]",
             "ArrayObject": "new ArrayObject()",
             "DateTimeImmutable": "new DateTimeImmutable()",
+            "?string": "null",
+            "?int": "null",
+            "?array": "null",
+            "iterable": "[]",
+            "object": "new \\stdClass()",
         }
         for prop_type, prop_name in properties:
             buf.write(f"        $this->{prop_name} = {defaults[prop_type]};\n")

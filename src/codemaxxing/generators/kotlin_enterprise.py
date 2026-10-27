@@ -42,7 +42,10 @@ class KotlinEnterpriseGenerator(SlopGenerator):
         imports = [
             "import java.time.Instant",
             "import java.time.Duration",
+            "import java.util.UUID",
             "import java.util.concurrent.ConcurrentHashMap",
+            "import java.util.concurrent.atomic.AtomicBoolean",
+            "import java.util.concurrent.atomic.AtomicInteger",
             "import kotlin.random.Random",
             "import kotlin.collections.ArrayDeque",
         ]
@@ -52,7 +55,12 @@ class KotlinEnterpriseGenerator(SlopGenerator):
 
         buf.write(f"/** {comments.docstring(sanity, class_name)} */\n")
         buf.write(f"enum class {enum_name} {{\n")
-        for state in ["PENDING", "RUNNING", "BLOCKED", "TRANSCENDING", "COMPLETE", "UNKNOWN"]:
+        kt_states = [
+            "PENDING", "RUNNING", "BLOCKED", "TRANSCENDING", "COMPLETE", "UNKNOWN",
+            "INITIALIZING", "DRAINING", "QUARANTINED", "RETRYING", "SUSPENDED",
+            "DEGRADED", "RECONCILING", "DEPRECATED", "TERMINATED",
+        ]
+        for state in kt_states:
             buf.write(f"    {state},\n")
         buf.write("}\n\n")
 
@@ -63,7 +71,12 @@ class KotlinEnterpriseGenerator(SlopGenerator):
 
         buf.write(f"data class {class_name}State(\n")
         fields = []
-        kotlin_types = ["String", "Int", "Long", "Boolean", "Instant", "Duration", "MutableList<String>", "MutableMap<String, Any?>"]
+        kotlin_types = [
+            "String", "Int", "Long", "Boolean", "Double", "Float",
+            "Instant", "Duration", "UUID", "AtomicBoolean", "AtomicInteger",
+            "List<String>", "Set<String>", "Map<String, String>",
+            "MutableList<String>", "MutableMap<String, Any?>",
+        ]
         for index in range(random.randint(7, 12)):
             field_name = f"field{index}{naming.class_name(sanity)}"
             field_type = random.choice(kotlin_types)
@@ -72,8 +85,16 @@ class KotlinEnterpriseGenerator(SlopGenerator):
                 "Int": '0',
                 "Long": '0L',
                 "Boolean": 'false',
+                "Double": '0.0',
+                "Float": '0.0f',
                 "Instant": 'Instant.now()',
                 "Duration": 'Duration.ZERO',
+                "UUID": 'UUID.randomUUID()',
+                "AtomicBoolean": 'AtomicBoolean(false)',
+                "AtomicInteger": 'AtomicInteger(0)',
+                "List<String>": 'emptyList()',
+                "Set<String>": 'emptySet()',
+                "Map<String, String>": 'emptyMap()',
                 "MutableList<String>": 'mutableListOf()',
                 "MutableMap<String, Any?>": 'mutableMapOf()',
             }[field_type]

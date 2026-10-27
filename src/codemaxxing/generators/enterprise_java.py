@@ -49,7 +49,15 @@ class EnterpriseJavaGenerator(SlopGenerator):
         # javadoc
         buf.write("/**\n")
         buf.write(f" * {comments.docstring(sanity, cname)}\n")
-        buf.write(f" * @author {naming._blend(['Enterprise Code Generator', 'Architecture Team', 'Senior Staff Engineer'], ['a mass of vibes', 'the mass void', 'nobody'], sanity)}\n")
+        author_corp = [
+            "Enterprise Code Generator", "Architecture Team", "Senior Staff Engineer",
+            "Principal Solutions Architect", "Chief Enterprise Evangelist", "Global Infrastructure Committee",
+        ]
+        author_chaos = [
+            "a mass of vibes", "the mass void", "nobody", "the 3am caffeine demon",
+            "an unpaid intern", "hyperintelligent racoon", "chatgpt hallucination",
+        ]
+        buf.write(f" * @author {naming._blend(author_corp, author_chaos, sanity)}\n")
         buf.write(f" * @since 1.0.0\n")
         buf.write(f" * @deprecated Since before it was written\n")
         buf.write(" */\n")
@@ -68,9 +76,14 @@ class EnterpriseJavaGenerator(SlopGenerator):
         # fields with getters and setters
         num_fields = random.randint(4, 12)
         fields = []
-        java_types = ["String", "int", "long", "boolean", "double", "Object",
-                       "List<Object>", "Map<String, Object>", "Optional<String>",
-                       "AbstractFactory", "ServiceProvider", "CompletableFuture<Void>"]
+        java_types = [
+            "String", "int", "long", "boolean", "double", "float", "short", "Object",
+            "List<Object>", "Map<String, Object>", "Optional<String>",
+            "AbstractFactory", "ServiceProvider", "CompletableFuture<Void>",
+            "UUID", "Instant", "Duration", "AtomicInteger", "AtomicBoolean",
+            "ConcurrentMap<String, Object>", "Set<String>", "Supplier<String>",
+            "Function<Object, Object>", "ByteBuffer", "BigDecimal", "BigInteger",
+        ]
         for _ in range(num_fields):
             field_name = naming.var_name(sanity)
             field_type = random.choice(java_types)
@@ -108,7 +121,10 @@ class EnterpriseJavaGenerator(SlopGenerator):
         num_methods = random.randint(3, 8)
         for _ in range(num_methods):
             mname = naming.method_name(sanity)
-            return_type = random.choice(["void", "Object", "String", "boolean", "int"])
+            return_type = random.choice([
+                "void", "Object", "String", "boolean", "int", "long", "double",
+                "Optional<String>", "List<Object>", "Map<String, Object>",
+            ])
             params = ", ".join(
                 f"{random.choice(java_types)} {naming.var_name(sanity)}"
                 for _ in range(random.randint(0, 4))
@@ -126,8 +142,10 @@ class EnterpriseJavaGenerator(SlopGenerator):
                 buf.write(f"        // {comments.comment(sanity)}\n")
             elif return_type == "boolean":
                 buf.write(f"        return false; // {comments.comment(sanity)}\n")
-            elif return_type == "int":
+            elif return_type in ("int", "long"):
                 buf.write(f"        return 0; // {comments.comment(sanity)}\n")
+            elif return_type == "double":
+                buf.write(f"        return 0.0; // {comments.comment(sanity)}\n")
             else:
                 buf.write(f"        return null; // {comments.comment(sanity)}\n")
             buf.write(f"    }}\n\n")

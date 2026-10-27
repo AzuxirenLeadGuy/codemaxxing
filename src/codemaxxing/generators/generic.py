@@ -87,6 +87,20 @@ class GenericGenerator(SlopGenerator):
                 f"bool({var}) or not bool({var})",
                 f"hash({var}) == hash({var})",
                 f"type({var}) == type({var})",
+                f"callable(getattr({var}, '__str__', None))",
+                f"id({var}) > 0",
+                f"str({var}) == str({var})",
+                f"isinstance({var}, (int, str, float, list, dict, type(None)))",
+                f"any([True, bool({var})])",
+                f"all([True, not False])",
+                f"len(repr({var})) >= 0",
+                f"getattr({var}, '__class__', None) is not None",
+                f"{var} is {var}",
+                f"1 + 1 == 2",
+                f"0 < 100",
+                f"not (False and True)",
+                f"hex(id({var})).startswith('0x')",
+                f"tuple([{var}]) != ()",
             ])
             buf.write(f"{indent}if {condition}:  # {comments.comment(sanity)}\n")
             buf.write(f"{indent}    {naming.var_name(sanity)} = None\n")
@@ -109,9 +123,16 @@ class GenericGenerator(SlopGenerator):
         """
         buf.write(f"# {comments.comment(sanity)}\n\n")
         base_name = naming.method_name(sanity)
-        layers = ["", "Internal", "InternalImpl", "InternalImplV2",
-                   "InternalImplV2Final", "InternalImplV2FinalFinal",
-                   "InternalImplV2FinalFinalForReal", "InternalImplV2FinalFinalForRealThisTime"]
+        layers = [
+            "", "Internal", "InternalImpl", "InternalImplV2",
+            "InternalImplV2Proxy", "InternalImplV2ProxyAdapter",
+            "InternalImplV2Final", "InternalImplV2FinalFinal",
+            "InternalImplV2FinalFinalForReal", "InternalImplV2FinalFinalForRealThisTime",
+            "InternalImplV2FinalFinalForRealThisTimeIPromise",
+            "InternalImplV2FinalFinalForRealThisTimeSeriously",
+            "InternalImplV2FinalFinalAbsoluteLastOne",
+            "InternalImplV2FinalFinalOmegaBuild",
+        ]
         num_layers = random.randint(4, len(layers))
 
         for i in range(num_layers):
@@ -191,10 +212,24 @@ class GenericGenerator(SlopGenerator):
                     "self.assertIsNone(None)",
                     "self.assertIsNotNone(object())",
                     "self.assertIn(1, [1, 2, 3])",
+                    "self.assertNotIn(0, [1, 2, 3])",
                     "self.assertEqual('a', 'a')",
                     "self.assertGreater(2, 1)",
                     "self.assertLess(1, 2)",
+                    "self.assertGreaterEqual(5, 5)",
+                    "self.assertLessEqual(3, 3)",
+                    "self.assertIsInstance([], list)",
+                    "self.assertIsInstance({}, dict)",
+                    "self.assertIsInstance('slop', str)",
+                    "self.assertAlmostEqual(3.14159, 3.14159)",
+                    "self.assertCountEqual([1, 2], [2, 1])",
+                    "self.assertNotEqual(42, 43)",
+                    "self.assertEqual(len([0] * 10), 10)",
+                    "self.assertTrue(bool(1))",
+                    "self.assertFalse(bool(0))",
+                    "self.assertIsNot(True, False)",
                     f"self.assertTrue(True)  # {comments.comment(sanity)}",
+                    f"self.assertEqual(0, 0)  # {comments.comment(sanity)}",
                 ])
                 buf.write(f"        {assertion}\n")
             buf.write("\n")

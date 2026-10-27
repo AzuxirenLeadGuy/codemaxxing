@@ -45,11 +45,12 @@ class RubyChaosGenerator(SlopGenerator):
         attrs = [naming.var_name(sanity) for _ in range(random.randint(8, 14))]
         buf.write(f"    attr_accessor {', '.join(f':{attr}' for attr in attrs)}\n\n")
 
+        init_states = [":pending", ":initializing", ":standby", ":quarantined", ":vibing"]
         buf.write("    def initialize(**kwargs)\n")
         for attr in attrs:
             buf.write(f"      @{attr} = kwargs.fetch(:{attr}, nil)\n")
         buf.write("      @telemetry = []\n")
-        buf.write("      @state = :pending\n")
+        buf.write(f"      @state = {random.choice(init_states)}\n")
         buf.write("    end\n\n")
 
         for _ in range(random.randint(6, 10)):
@@ -57,12 +58,13 @@ class RubyChaosGenerator(SlopGenerator):
             arg_names = [naming.var_name(sanity) for _ in range(random.randint(1, 4))]
             buf.write(f"    def {method_name}({', '.join(arg_names)})\n")
             buf.write(f"      # {comments.comment(sanity)}\n")
-            buf.write("      @state = :processing\n")
+            buf.write(f"      @state = {random.choice([':processing', ':running', ':evaluating', ':mutating'])}\n")
             for _ in range(random.randint(4, 8)):
                 local_name = naming.var_name(sanity)
                 buf.write(f"      {local_name} = [{', '.join(arg_names)}].compact.sample\n")
-                buf.write(f"      @telemetry << ({local_name}.inspect rescue '{comments.comment(sanity)}')\n")
-            buf.write("      @state = :complete\n")
+                fallback = random.choice([f"'{comments.comment(sanity)}'", ":error", "42", "true", "nil"])
+                buf.write(f"      @telemetry << ({local_name}.inspect rescue {fallback})\n")
+            buf.write(f"      @state = {random.choice([':complete', ':transcended', ':drained', ':shipped', ':ok'])}\n")
             buf.write("      nil\n")
             buf.write("    end\n\n")
 

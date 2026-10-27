@@ -45,14 +45,18 @@ class EnterprisePythonGenerator(SlopGenerator):
         # imports
         stdlib_imports = [
             "from abc import ABC, abstractmethod",
-            "from typing import Any, Optional, Union, Protocol, TypeVar, Generic",
+            "from typing import Any, Optional, Union, Protocol, TypeVar, Generic, Callable, Mapping, Sequence, Final",
             "from dataclasses import dataclass, field",
             "from functools import wraps, lru_cache",
             "from enum import Enum, auto",
             "import logging",
             "import sys",
             "import os",
-            "from collections import defaultdict",
+            "import uuid",
+            "import hashlib",
+            "import asyncio",
+            "from decimal import Decimal",
+            "from collections import defaultdict, deque, Counter",
             "from contextlib import contextmanager",
         ]
         for imp in random.sample(stdlib_imports, random.randint(4, len(stdlib_imports))):
@@ -62,9 +66,17 @@ class EnterprisePythonGenerator(SlopGenerator):
         # type aliases
         buf.write(f"T = TypeVar('T')\n")
         buf.write(f"U = TypeVar('U')\n")
+        type_options = [
+            "Union[dict[str, Any], list[Any], None]",
+            "Optional[dict[str, Union[str, int, float, bool]]]",
+            "Callable[[Any], Optional[Any]]",
+            "Sequence[Mapping[str, Any]]",
+            "tuple[str, int, dict[str, Any]]",
+            "Union[list[str], set[str], tuple[str, ...]]",
+        ]
         for _ in range(random.randint(2, 5)):
             alias_name = naming.class_name(sanity) + "Type"
-            buf.write(f"{alias_name} = Union[dict[str, Any], list[Any], None]\n")
+            buf.write(f"{alias_name} = {random.choice(type_options)}\n")
         buf.write("\n")
         buf.write(f"logger = logging.getLogger(__name__)\n\n")
 
@@ -98,11 +110,17 @@ class EnterprisePythonGenerator(SlopGenerator):
         enum_name = naming.class_name(sanity) + "Status"
         buf.write(f"\nclass {enum_name}(Enum):\n")
         buf.write(f'    """{comments.docstring(sanity, enum_name)}"""\n\n')
-        enum_values = ["PENDING", "ACTIVE", "PROCESSING", "VALIDATING", "TRANSFORMING",
-                       "ORCHESTRATING", "DELEGATING", "RESOLVING", "FINALIZING", "COMPLETED",
-                       "FAILED", "RETRYING", "CANCELLED", "DEPRECATED", "UNKNOWN",
-                       "ASCENDING", "TRANSCENDING", "VIBING", "EXISTING"]
-        for val in random.sample(enum_values, random.randint(6, min(15, len(enum_values)))):
+        enum_values = [
+            "PENDING", "ACTIVE", "PROCESSING", "VALIDATING", "TRANSFORMING",
+            "ORCHESTRATING", "DELEGATING", "RESOLVING", "FINALIZING", "COMPLETED",
+            "FAILED", "RETRYING", "CANCELLED", "DEPRECATED", "UNKNOWN",
+            "ASCENDING", "TRANSCENDING", "VIBING", "EXISTING",
+            "QUARANTINED", "DRAINING", "THROTTLED", "BACKOFF", "SUSPENDED",
+            "DEGRADED", "RECONCILING", "PROVISIONING", "TERMINATED",
+            "MOGGED", "MAXING", "GOONING", "SCHIZO", "SUPERSEDED",
+            "DESERIALIZED", "UNHINGED", "IMMUTABLE",
+        ]
+        for val in random.sample(enum_values, random.randint(6, min(20, len(enum_values)))):
             buf.write(f"    {val} = auto()\n")
         buf.write("\n")
 

@@ -44,12 +44,15 @@ class RustEnterpriseGenerator(SlopGenerator):
         buf.write("\n")
 
         imports = [
-            "use std::collections::{BTreeMap, HashMap, VecDeque};",
+            "use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};",
             "use std::fmt::{Debug, Display};",
             "use std::sync::{Arc, Mutex, RwLock};",
+            "use std::sync::atomic::{AtomicBool, AtomicUsize};",
             "use std::time::{Duration, SystemTime};",
             "use std::marker::PhantomData;",
             "use std::error::Error;",
+            "use std::cell::RefCell;",
+            "use std::rc::Rc;",
         ]
         for imp in random.sample(imports, random.randint(3, len(imports))):
             buf.write(f"{imp}\n")
@@ -63,6 +66,8 @@ class RustEnterpriseGenerator(SlopGenerator):
         states = [
             "Pending", "Initializing", "Validating", "Materializing", "Hydrating",
             "Delegating", "Synchronizing", "Finalizing", "Completed", "Deprecated",
+            "Quarantined", "Throttled", "Reconciling", "Backoff", "Draining",
+            "Evicted", "Panicking", "Transcended", "Corrupted", "Suspended",
         ]
         for state in states:
             prefix = "#[default]\n    " if state == "Pending" else "    "
@@ -81,8 +86,10 @@ class RustEnterpriseGenerator(SlopGenerator):
         buf.write(f"pub struct {struct_name}<T> {{\n")
         field_types = [
             "String", "usize", "bool", "Duration", "SystemTime", "Vec<String>",
-            "HashMap<String, String>", "BTreeMap<String, usize>", "Arc<Mutex<Vec<String>>>",
-            "Arc<RwLock<HashMap<String, String>>>", "Option<T>", "PhantomData<T>",
+            "HashMap<String, String>", "BTreeMap<String, usize>", "HashSet<String>",
+            "Arc<Mutex<Vec<String>>>", "Arc<RwLock<HashMap<String, String>>>",
+            "Arc<AtomicBool>", "Arc<AtomicUsize>", "f64", "i64", "u64",
+            "Vec<u8>", "Option<T>", "PhantomData<T>",
         ]
         for _ in range(random.randint(8, 14)):
             buf.write(f"    pub {naming.var_name(sanity)}: {random.choice(field_types)},\n")
@@ -102,13 +109,19 @@ class RustEnterpriseGenerator(SlopGenerator):
             "String::from(\"enterprise\")",
             "0",
             "false",
+            "0.0",
+            "0i64",
+            "0u64",
             "Duration::from_secs(0)",
             "SystemTime::now()",
             "Vec::new()",
             "HashMap::new()",
             "BTreeMap::new()",
+            "HashSet::new()",
             "Arc::new(Mutex::new(Vec::new()))",
             "Arc::new(RwLock::new(HashMap::new()))",
+            "Arc::new(AtomicBool::new(false))",
+            "Arc::new(AtomicUsize::new(0))",
             "None",
             "PhantomData",
         ]

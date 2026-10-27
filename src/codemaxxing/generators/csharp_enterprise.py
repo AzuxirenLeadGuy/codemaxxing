@@ -42,10 +42,14 @@ class CSharpEnterpriseGenerator(SlopGenerator):
             "using System;",
             "using System.Collections.Generic;",
             "using System.Collections.Concurrent;",
+            "using System.Collections.Immutable;",
             "using System.Linq;",
             "using System.Threading;",
             "using System.Threading.Tasks;",
+            "using System.Threading.Channels;",
             "using System.Diagnostics;",
+            "using System.IO;",
+            "using System.Text.Json;",
         ]
         for item in usings:
             buf.write(f"{item}\n")
@@ -65,9 +69,12 @@ class CSharpEnterpriseGenerator(SlopGenerator):
 
         buf.write(f"public sealed class {class_name} : {interface_name}\n{{\n")
         field_types = [
-            "string", "int", "long", "bool", "DateTimeOffset", "TimeSpan",
+            "string", "int", "long", "bool", "double", "float",
+            "DateTimeOffset", "TimeSpan", "Guid",
             "List<string>", "Dictionary<string, object?>", "ConcurrentQueue<object?>",
-            "ConcurrentDictionary<string, string>", "ActivitySource", "SemaphoreSlim",
+            "ConcurrentDictionary<string, string>", "ConcurrentBag<object?>",
+            "ActivitySource", "SemaphoreSlim", "CancellationTokenSource",
+            "IReadOnlyList<string>", "ImmutableArray<string>", "Stopwatch",
         ]
         properties = []
         for _ in range(random.randint(8, 14)):
@@ -84,14 +91,22 @@ class CSharpEnterpriseGenerator(SlopGenerator):
                 "int": '0',
                 "long": '0L',
                 "bool": 'false',
+                "double": '0.0',
+                "float": '0.0f',
                 "DateTimeOffset": 'DateTimeOffset.UtcNow',
                 "TimeSpan": 'TimeSpan.Zero',
+                "Guid": 'Guid.NewGuid()',
                 "List<string>": 'new List<string>()',
                 "Dictionary<string, object?>": 'new Dictionary<string, object?>()',
                 "ConcurrentQueue<object?>": 'new ConcurrentQueue<object?>()',
                 "ConcurrentDictionary<string, string>": 'new ConcurrentDictionary<string, string>()',
+                "ConcurrentBag<object?>": 'new ConcurrentBag<object?>()',
                 "ActivitySource": f'new ActivitySource("{class_name}")',
                 "SemaphoreSlim": 'new SemaphoreSlim(1, 1)',
+                "CancellationTokenSource": 'new CancellationTokenSource()',
+                "IReadOnlyList<string>": 'Array.Empty<string>()',
+                "ImmutableArray<string>": 'ImmutableArray<string>.Empty',
+                "Stopwatch": 'Stopwatch.StartNew()',
             }[field_type]
             buf.write(f"        {prop_name} = {default_value};\n")
         buf.write("    }\n\n")

@@ -42,7 +42,13 @@ class CppEnterpriseGenerator(SlopGenerator):
         buf.write("#include <string>\n#include <vector>\n#include <map>\n#include <memory>\n#include <optional>\n#include <iostream>\n#include <sstream>\n#include <utility>\n\n")
 
         buf.write(f"namespace {namespace_name} {{\n\n")
-        buf.write(f"enum class {enum_name} {{ Pending, Running, Blocked, Complete, Deprecated, Chaotic }};\n\n")
+        buf.write(
+            f"enum class {enum_name} {{ "
+            "Pending, Running, Blocked, Complete, Deprecated, Chaotic, "
+            "Initializing, Reconciling, Quarantined, Draining, Suspended, "
+            "Transcending, Materialized, Deserializing "
+            "}};\n\n"
+        )
 
         buf.write(f"class {interface_name} {{\n")
         buf.write("public:\n")
@@ -54,9 +60,12 @@ class CppEnterpriseGenerator(SlopGenerator):
         buf.write(f"class {class_name} final : public {interface_name} {{\n")
         buf.write("private:\n")
         cpp_types = [
-            "std::string", "int", "long", "bool", "double",
+            "std::string", "int", "long", "bool", "double", "float",
+            "uint64_t", "int64_t", "std::vector<int>",
             "std::vector<std::string>", "std::map<std::string, std::string>",
-            "std::optional<std::string>",
+            "std::map<std::string, int>", "std::optional<std::string>",
+            "std::shared_ptr<std::string>", "std::unique_ptr<std::string>",
+            "std::pair<std::string, std::string>",
         ]
         fields = []
         for _ in range(random.randint(10, 16)):
@@ -75,9 +84,17 @@ class CppEnterpriseGenerator(SlopGenerator):
                 "long": '0L',
                 "bool": 'false',
                 "double": '0.0',
+                "float": '0.0f',
+                "uint64_t": '0ULL',
+                "int64_t": '0LL',
+                "std::vector<int>": '{}',
                 "std::vector<std::string>": '{}',
                 "std::map<std::string, std::string>": '{}',
+                "std::map<std::string, int>": '{}',
                 "std::optional<std::string>": 'std::nullopt',
+                "std::shared_ptr<std::string>": 'nullptr',
+                "std::unique_ptr<std::string>": 'nullptr',
+                "std::pair<std::string, std::string>": '{"", ""}',
             }[field_type]
             buf.write(f"        this->{field_name} = {value};\n")
         buf.write("    }\n\n")

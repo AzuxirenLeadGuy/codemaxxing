@@ -42,16 +42,26 @@ class HaskellChaosGenerator(SlopGenerator):
         buf.write("import Data.Maybe\n")
         buf.write("import Data.Either\n")
         buf.write("import Data.List\n")
+        buf.write("import Data.Char\n")
+        buf.write("import Data.Word\n")
         buf.write("import qualified Data.Map as Map\n")
+        buf.write("import qualified Data.Set as Set\n")
         buf.write("import Control.Monad\n")
-        buf.write("import Control.Applicative\n\n")
+        buf.write("import Control.Applicative\n")
+        buf.write("import Control.Concurrent\n\n")
 
         buf.write(f"data {data_name} a\n")
         fields = [naming.class_name(sanity) for _ in range(random.randint(6, 10))]
         for index, field in enumerate(fields):
             prefix = "    =" if index == 0 else "    |"
             buf.write(f"{prefix} {field} a\n")
-        buf.write("    deriving (Eq, Show)\n\n")
+        deriving_list = random.choice([
+            "(Eq, Show)",
+            "(Eq, Show, Ord)",
+            "(Eq, Show, Read)",
+            "(Eq, Show, Ord, Read)",
+        ])
+        buf.write(f"    deriving {deriving_list}\n\n")
 
         buf.write(f"class {typeclass_name} a where\n")
         for _ in range(random.randint(5, 9)):
