@@ -1,3 +1,9 @@
+"""C synthetic code generator.
+
+Synthesizes C source files with enum state machines, typedef structs, memory buffers,
+lifecycle functions (init/free/execute), and telemetry printing main functions.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class CSlopGenerator(SlopGenerator):
+    """Synthetic C language code generator.
+
+    Emits procedural C boilerplate with structs, enum-based state machines,
+    and simulated business logic functions.
+    """
+
     name = "c_slop"
     language = "c"
     extension = ".c"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic C source file (.c).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized C source code.
+        """
         buf = StringIO()
         header_guardish = naming.class_name(sanity).upper()
         struct_name = naming.class_name(sanity)

@@ -1,3 +1,9 @@
+"""Generic chaotic Python generator.
+
+Synthesizes absurd procedural patterns including 20-level nested if-else statements,
+recursive wrapper call chains, enormous enum definitions, and simulated unit test suites.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,29 @@ from codemaxxing import naming, comments
 
 
 class GenericGenerator(SlopGenerator):
+    """Generic Python code generator demonstrating anti-patterns and code bloat.
+
+    Produces synthetic python source code filled with deeply nested conditional branches,
+    convoluted wrapper layers, hundred-member enums, and trivial unit tests.
+    """
+
     name = "generic"
     language = "generic"
     extension = ".py"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a generic synthetic Python file (.py).
+
+        Selects among slop archetypes ('nested_if', 'wrapper_hell', 'massive_enum',
+        'fake_tests', or a combination of all) to construct an output file.
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized generic Python code.
+        """
         buf = StringIO()
 
         # pick which type of slop to generate
@@ -37,6 +61,13 @@ class GenericGenerator(SlopGenerator):
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
 
     def _nested_if_else(self, buf: StringIO, sanity: float, cname: str):
+        """Emit a function with 10 to 20 levels of nested if-else statements.
+
+        Args:
+            buf: String buffer receiving generated Python code.
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            cname: Base class/component name used for naming context.
+        """
         buf.write(f"# {comments.comment(sanity)}\n\n\n")
         func_name = naming.method_name(sanity)
         buf.write(f"def {func_name}({naming.var_name(sanity)}, {naming.var_name(sanity)}, {naming.var_name(sanity)}):\n")
@@ -69,6 +100,13 @@ class GenericGenerator(SlopGenerator):
         buf.write(f"    return None\n\n\n")
 
     def _wrapper_hell(self, buf: StringIO, sanity: float, cname: str):
+        """Emit a series of chained wrapper functions delegating through multiple layers.
+
+        Args:
+            buf: String buffer receiving generated Python code.
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            cname: Base class/component name used for naming context.
+        """
         buf.write(f"# {comments.comment(sanity)}\n\n")
         base_name = naming.method_name(sanity)
         layers = ["", "Internal", "InternalImpl", "InternalImplV2",
@@ -95,6 +133,13 @@ class GenericGenerator(SlopGenerator):
                 buf.write(f"    return None  # {comments.comment(sanity)}\n\n\n")
 
     def _massive_enum(self, buf: StringIO, sanity: float, cname: str):
+        """Emit a massive Python Enum definition with 50 to 100 auto() values.
+
+        Args:
+            buf: String buffer receiving generated Python code.
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            cname: Base class/component name used to name the enum.
+        """
         buf.write(f"# {comments.comment(sanity)}\n")
         buf.write(f"from enum import Enum, auto\n\n\n")
         enum_name = cname + "Type"
@@ -117,6 +162,13 @@ class GenericGenerator(SlopGenerator):
         buf.write("\n\n")
 
     def _fake_tests(self, buf: StringIO, sanity: float, cname: str):
+        """Emit a synthetic unittest TestCase containing 10 to 30 trivial assertions.
+
+        Args:
+            buf: String buffer receiving generated Python code.
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            cname: Base class/component name under test.
+        """
         buf.write(f"# {comments.comment(sanity)}\n")
         buf.write(f"import unittest\n\n\n")
 

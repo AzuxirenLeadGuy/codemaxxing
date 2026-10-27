@@ -1,3 +1,10 @@
+"""Identifier synthesis and commit message generation for codemaxxing.
+
+Blends enterprise corporate terminology (design patterns, enterprise prefixes/suffixes)
+with chaotic brainrot slang (memes, cursed variable names, informal phrases) based on
+a configurable sanity score.
+"""
+
 import random
 
 CORPORATE_PREFIXES = [
@@ -96,12 +103,33 @@ CHAOS_VARS = [
 
 
 def _blend(corporate_list: list[str], chaos_list: list[str], sanity: float) -> str:
+    """Select an item from either the corporate list or the chaos list based on sanity.
+
+    Args:
+        corporate_list: Pool of enterprise/professional strings.
+        chaos_list: Pool of chaotic/slang strings.
+        sanity: Probability weighting in [0.0, 1.0] for choosing corporate styling.
+
+    Returns:
+        A selected string token matching the weighted tone.
+    """
     if random.random() < sanity:
         return random.choice(corporate_list)
     return random.choice(chaos_list)
 
 
 def class_name(sanity: float) -> str:
+    """Generate a synthetic PascalCase class name.
+
+    Combines corporate prefixes, compound nouns, and enterprise suffixes or chaotic
+    brainrot slang tokens according to the requested sanity level.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 and 1.0.
+
+    Returns:
+        A PascalCase class name string (e.g. 'AbstractBeanFactoryManagerImpl' or 'SkibidiOrchestrator').
+    """
     parts = []
     num_parts = random.randint(2, 4) if sanity > 0.5 else random.randint(1, 3)
     if random.random() < sanity:
@@ -114,14 +142,38 @@ def class_name(sanity: float) -> str:
 
 
 def method_name(sanity: float) -> str:
+    """Generate a synthetic method or function name.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 and 1.0.
+
+    Returns:
+        A method name string (e.g. 'execute_pipeline' or 'yeet').
+    """
     return _blend(CORPORATE_METHODS, CHAOS_METHODS, sanity)
 
 
 def var_name(sanity: float) -> str:
+    """Generate a synthetic variable or parameter identifier.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 and 1.0.
+
+    Returns:
+        A variable name string (e.g. 'cache_entry' or 'spaghetti').
+    """
     return _blend(CORPORATE_VARS, CHAOS_VARS, sanity)
 
 
 def java_package(sanity: float) -> str:
+    """Generate a synthetic Java package hierarchy.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 and 1.0.
+
+    Returns:
+        A reverse-domain dot-separated package name (e.g. 'com.enterprise.service').
+    """
     if sanity > 0.5:
         domains = ["com", "org", "io", "net"]
         companies = ["enterprise", "megacorp", "synergy", "cloudscale", "dataflow"]
@@ -132,12 +184,31 @@ def java_package(sanity: float) -> str:
 
 
 def go_package(sanity: float) -> str:
+    """Generate a synthetic Go package name.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 and 1.0.
+
+    Returns:
+        A lowercase single-word Go package name.
+    """
     if sanity > 0.5:
         return random.choice(["service", "handler", "middleware", "repository", "controller", "util"])
     return random.choice(["yeet", "bruh", "skibidi", "sus", "ohio", "rizz"])
 
 
 def commit_message(sanity: float, commit_num: int) -> str:
+    """Generate a synthetic git commit message.
+
+    Blends conventional commit format corporate messages with humorous chaotic commit messages.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 and 1.0.
+        commit_num: Sequential index of the current commit for parameterized messages.
+
+    Returns:
+        A git commit message string.
+    """
     corporate_messages = [
         "refactor(core): extract AbstractFactoryProvider into dedicated module",
         "feat(auth): implement singleton proxy delegation layer",

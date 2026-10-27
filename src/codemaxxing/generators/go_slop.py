@@ -1,3 +1,9 @@
+"""Go synthetic code generator.
+
+Synthesizes Go source files featuring heavy struct definitions, interface types,
+infinite `if err != nil` boilerplate ladders, goroutines, and mutex locks.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import naming, comments
 
 
 class GoSlopGenerator(SlopGenerator):
+    """Go slop code generator.
+
+    Emits Go source files filled with idiomatic error-handling boilerplate, empty interface
+    conversions, channel operations, and sync.RWMutex synchronization ceremony.
+    """
+
     name = "go_slop"
     language = "go"
     extension = ".go"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Go source file (.go).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Go source code.
+        """
         buf = StringIO()
         pkg = naming.go_package(sanity)
         struct_name = naming.class_name(sanity)

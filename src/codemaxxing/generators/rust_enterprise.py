@@ -1,3 +1,9 @@
+"""Rust enterprise code generator.
+
+Synthesizes safe, enterprise Rust source files complete with inner module documentation (`//!`),
+custom traits, state enums, boxed dynamic errors, builder structs, and unit tests.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class RustEnterpriseGenerator(SlopGenerator):
+    """Enterprise Rust code generator.
+
+    Emits idiomatic, compile-mimicking Rust source code with struct declarations,
+    trait implementations, Result/Option pipelines, and concurrency locks (Arc/RwLock).
+    """
+
     name = "rust_enterprise"
     language = "rust"
     extension = ".rs"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Rust source file (.rs).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Rust source code.
+        """
         buf = StringIO()
         module_name = naming.class_name(sanity)
         struct_name = naming.class_name(sanity)

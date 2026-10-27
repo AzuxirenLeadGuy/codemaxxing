@@ -1,3 +1,9 @@
+"""Enterprise Java code generator.
+
+Synthesizes classic enterprise Java classes with package statements, verbose imports,
+JavaDoc annotations, inheritance chains, getters/setters, and nested Builder patterns.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import naming, comments
 
 
 class EnterpriseJavaGenerator(SlopGenerator):
+    """Enterprise Java class generator.
+
+    Emits Java source code adhering to heavy enterprise conventions, such as
+    verbose getters and setters, Javadoc headers, and static nested builders.
+    """
+
     name = "enterprise_java"
     language = "java"
     extension = ".java"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Java source file (.java).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Java source code.
+        """
         buf = StringIO()
         cname = naming.class_name(sanity)
         pkg = naming.java_package(sanity)

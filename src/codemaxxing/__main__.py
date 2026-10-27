@@ -1,9 +1,21 @@
+"""Command-line interface and entrypoint for codemaxxing.
+
+This module parses command-line arguments to construct a `GenerationConfig`
+and executes either standard batch code generation or the turbo git-commit loop.
+"""
+
 import argparse
 
 from codemaxxing.config import GenerationConfig
 
 
-def main():
+def main() -> None:
+    """Parse command-line arguments and run synthetic code generation.
+
+    Configures flags for line targets, sanity/chaos levels, target languages,
+    enterprise scaling multipliers, output directories, and turbo mode execution.
+    Initializes a `GenerationConfig` instance and dispatches generation tasks.
+    """
     parser = argparse.ArgumentParser(
         prog="codemaxxing",
         description="Maximize your lines of code. Because quantity IS quality.",

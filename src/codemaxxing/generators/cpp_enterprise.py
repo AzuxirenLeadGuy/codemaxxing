@@ -1,3 +1,9 @@
+"""C++ enterprise code generator.
+
+Synthesizes modern C++ source files with namespaces, pure virtual interface contracts,
+scoped enum classes, final classes with vector/map telemetry, and demonstration main functions.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class CppEnterpriseGenerator(SlopGenerator):
+    """Modern C++ enterprise pattern code generator.
+
+    Emits object-oriented C++ with virtual contract interfaces, modern standard library
+    containers (std::vector, std::map, std::optional), and RAII styling.
+    """
+
     name = "cpp_enterprise"
     language = "cpp"
     extension = ".cpp"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic C++ source file (.cpp).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized C++ source code.
+        """
         buf = StringIO()
         namespace_name = naming.class_name(sanity)
         class_name = naming.class_name(sanity)

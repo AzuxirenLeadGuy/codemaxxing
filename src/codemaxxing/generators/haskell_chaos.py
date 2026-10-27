@@ -1,3 +1,9 @@
+"""Haskell chaos code generator.
+
+Synthesizes functional Haskell source files containing algebraic data types (ADTs),
+typeclasses, Maybe/Either pipelines, monadic bind operations, and recursive transformers.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class HaskellChaosGenerator(SlopGenerator):
+    """Haskell language code generator.
+
+    Emits pure functional Haskell constructs including algebraic data types, typeclass
+    contracts, pattern matching cascades, and higher-order function compositions.
+    """
+
     name = "haskell_chaos"
     language = "haskell"
     extension = ".hs"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Haskell source file (.hs).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Haskell source code.
+        """
         buf = StringIO()
         module_name = naming.class_name(sanity)
         data_name = naming.class_name(sanity)

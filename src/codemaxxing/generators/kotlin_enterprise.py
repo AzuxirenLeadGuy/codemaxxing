@@ -1,3 +1,9 @@
+"""Kotlin enterprise code generator.
+
+Synthesizes enterprise Kotlin source files featuring package namespaces, gateway interfaces,
+sealed lifecycle enums, immutable data classes, and ConcurrentHashMap caching.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class KotlinEnterpriseGenerator(SlopGenerator):
+    """Enterprise Kotlin code generator.
+
+    Emits idiomatic Kotlin code with concise data classes, gateway interface contracts,
+    enum classes, and concurrent caching structures.
+    """
+
     name = "kotlin_enterprise"
     language = "kotlin"
     extension = ".kt"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Kotlin source file (.kt).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Kotlin source code.
+        """
         buf = StringIO()
         package_name = naming.java_package(sanity).replace("-", "_")
         class_name = naming.class_name(sanity)

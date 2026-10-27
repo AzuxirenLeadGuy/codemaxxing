@@ -1,3 +1,9 @@
+"""Swift enterprise code generator.
+
+Synthesizes protocol-oriented Swift source files with Foundation imports,
+lifecycle enums, payload structs, final classes conforming to protocols, and extensions.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class SwiftEnterpriseGenerator(SlopGenerator):
+    """Protocol-oriented Swift code generator.
+
+    Emits idiomatic Swift source code utilizing protocols, Codable payload structs,
+    final classes, and class extensions.
+    """
+
     name = "swift_enterprise"
     language = "swift"
     extension = ".swift"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Swift source file (.swift).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Swift source code.
+        """
         buf = StringIO()
         protocol_name = naming.class_name(sanity) + "Protocol"
         class_name = naming.class_name(sanity)

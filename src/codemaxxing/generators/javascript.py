@@ -1,3 +1,9 @@
+"""JavaScript and TypeScript synthetic code generator.
+
+Synthesizes JS/TS source files featuring callback hell, chained Promises, mock async
+wrappers, type declarations (for TypeScript), and module export ceremony.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import naming, comments
 
 
 class JavaScriptGenerator(SlopGenerator):
+    """JavaScript/TypeScript code generator.
+
+    Emits JavaScript or TypeScript files full of nested asynchronous callbacks,
+    Promise chains, proxy handlers, and excessive imports.
+    """
+
     name = "javascript"
     language = "javascript"
     extension = ".js"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic JavaScript or TypeScript source file (.js or .ts).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized JavaScript or TypeScript code.
+        """
         buf = StringIO()
         use_ts = random.random() < 0.4
         ext = ".ts" if use_ts else ".js"
