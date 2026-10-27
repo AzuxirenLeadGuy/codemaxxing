@@ -1,3 +1,9 @@
+"""Lua chaos code generator.
+
+Synthesizes Lua scripts simulating OOP classes via `setmetatable` and `__index`,
+containing telemetry tables, chainable helper methods, and string concatenation pipelines.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class LuaChaosGenerator(SlopGenerator):
+    """Lua language code generator.
+
+    Emits dynamic Lua scripts utilizing metatable-based pseudo-classes, table manipulation,
+    and chained method calls returning `self`.
+    """
+
     name = "lua_chaos"
     language = "lua"
     extension = ".lua"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Lua source file (.lua).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Lua source code.
+        """
         buf = StringIO()
         module_name = naming.class_name(sanity)
         table_name = naming.class_name(sanity)

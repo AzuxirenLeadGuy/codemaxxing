@@ -1,3 +1,9 @@
+"""Registry and factory lookup for language-specific synthetic code generators.
+
+Provides mappings from language names and alias identifiers to instantiated
+`SlopGenerator` subclasses covering 16 supported programming language styles.
+"""
+
 from codemaxxing.generators.enterprise_java import EnterpriseJavaGenerator
 from codemaxxing.generators.enterprise_python import EnterprisePythonGenerator
 from codemaxxing.generators.javascript import JavaScriptGenerator
@@ -60,4 +66,14 @@ LANG_MAP = {
 
 
 def get_generators(lang: str) -> list:
+    """Retrieve generator instances matching a target language identifier or alias.
+
+    Args:
+        lang: Target language name (e.g. 'java', 'rust', 'csharp', 'js') or 'all'.
+            Case-sensitive language identifier or shorthand alias.
+
+    Returns:
+        A list of `SlopGenerator` instances configured for the requested language,
+        or all available generators if `lang` is 'all' or unrecognized.
+    """
     return LANG_MAP.get(lang, ALL_GENERATORS)

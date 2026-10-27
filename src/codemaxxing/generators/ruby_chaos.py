@@ -1,3 +1,9 @@
+"""Ruby chaos code generator.
+
+Synthesizes idiomatic Ruby source files featuring frozen string literals,
+nested module hierarchies, `attr_accessor` symbols, and DSL-style method chains.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class RubyChaosGenerator(SlopGenerator):
+    """Ruby language code generator.
+
+    Emits dynamic Ruby code with namespaced modules, classes, extensive attr_accessors,
+    telemetry arrays, and chainable instance methods.
+    """
+
     name = "ruby_chaos"
     language = "ruby"
     extension = ".rb"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Ruby source file (.rb).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Ruby source code.
+        """
         buf = StringIO()
         module_name = naming.class_name(sanity)
         class_name = naming.class_name(sanity)

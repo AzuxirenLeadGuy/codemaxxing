@@ -1,3 +1,9 @@
+"""Generation orchestrator and filesystem emission pipeline for codemaxxing.
+
+Handles generator rotation, batch generation, disk serialization of generated code,
+and generation of the Markdown inventory manifest (codemaxxing_manifest.md).
+"""
+
 import os
 import random
 
@@ -14,6 +20,19 @@ def _generator_sequence(
     count: int,
     start_offset: int = 0,
 ) -> list[SlopGenerator]:
+    """Build a deterministic sequence of generators ensuring round-robin representation.
+
+    Rotates available generators starting from `start_offset` to guarantee every generator
+    is invoked before falling back to randomized generator selection for excess counts.
+
+    Args:
+        generators: List of available generator instances to sequence.
+        count: Desired total number of generator instances in the resulting sequence.
+        start_offset: Index offset for round-robin rotation.
+
+    Returns:
+        A list of `SlopGenerator` instances of length `count`.
+    """
     if not generators or count <= 0:
         return []
 
@@ -33,6 +52,18 @@ def _generator_sequence(
 
 
 def generate(config: GenerationConfig) -> list[GeneratedFile]:
+    """Generate synthetic source files to satisfy the configured target line count.
+
+    Resolves generators for the requested target language or cycles across all available
+    languages if 'all' is selected. Generates files sequentially until the cumulative
+    line count meets or exceeds `config.lines`.
+
+    Args:
+        config: Generation settings including target lines, sanity level, and language.
+
+    Returns:
+        A list of generated `GeneratedFile` objects containing filenames, contents, and line counts.
+    """
     generators = get_generators(config.lang)
     files: list[GeneratedFile] = []
     total_lines = 0
@@ -57,6 +88,16 @@ def generate(config: GenerationConfig) -> list[GeneratedFile]:
 
 
 def generate_batch(config: GenerationConfig, batch_size: int, start_index: int) -> list[GeneratedFile]:
+    """Generate a fixed-size batch of synthetic files for turbo mode iteration.
+
+    Args:
+        config: Generation settings specifying language and sanity level.
+        batch_size: Exact number of files to generate in this batch.
+        start_index: Starting file index offset for naming uniqueness across batches.
+
+    Returns:
+        A list of `GeneratedFile` objects created in this batch.
+    """
     generators = get_generators(config.lang)
     files: list[GeneratedFile] = []
     sequence: list[SlopGenerator] = []
@@ -75,6 +116,16 @@ def generate_batch(config: GenerationConfig, batch_size: int, start_index: int) 
 
 
 def _write_manifest(files: list[GeneratedFile], output_dir: str, total_lines: int) -> None:
+    """Write an inventory manifest Markdown file summarizing generated files and lines.
+
+    Aggregates files and lines by language subfolder and writes a formatted report
+    to `codemaxxing_manifest.md` inside `output_dir`.
+
+    Args:
+        files: List of all generated files in the current run.
+        output_dir: Destination directory path where the manifest will be written.
+        total_lines: Cumulative line count across all generated files.
+    """
     by_language: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "lines": 0})
     for generated in files:
         language = generated.filename.split("/", 1)[0]
@@ -111,6 +162,17 @@ def _write_manifest(files: list[GeneratedFile], output_dir: str, total_lines: in
 
 
 def write_files(files: list[GeneratedFile], output_dir: str) -> int:
+    """Write generated synthetic files to disk and produce an updated manifest.
+
+    Creates subdirectories as required, writes file contents, and invokes `_write_manifest`.
+
+    Args:
+        files: Collection of `GeneratedFile` instances to write to disk.
+        output_dir: Root destination directory path.
+
+    Returns:
+        The total number of lines written across all files.
+    """
     total_lines = 0
     for f in files:
         path = os.path.join(output_dir, f.filename)

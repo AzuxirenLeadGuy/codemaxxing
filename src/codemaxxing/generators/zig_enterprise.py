@@ -1,3 +1,9 @@
+"""Zig enterprise code generator.
+
+Synthesizes Zig source files featuring explicit memory allocator passing,
+tagged enums, struct definitions with init/deinit lifecycles, and formatting logic.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class ZigEnterpriseGenerator(SlopGenerator):
+    """Enterprise Zig code generator.
+
+    Emits manual memory management Zig source code with explicit `std.mem.Allocator`
+    parameters, enum definitions, error sets, and struct initialization methods.
+    """
+
     name = "zig_enterprise"
     language = "zig"
     extension = ".zig"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic Zig source file (.zig).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Zig source code.
+        """
         buf = StringIO()
         struct_name = naming.class_name(sanity)
         enum_name = naming.class_name(sanity) + "State"

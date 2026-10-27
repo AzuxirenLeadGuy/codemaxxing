@@ -1,3 +1,9 @@
+"""C# enterprise code generator.
+
+Synthesizes enterprise C# source files featuring async Task workflows, sealed records,
+interface contracts, concurrent collections, telemetry channels, and nested builders.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class CSharpEnterpriseGenerator(SlopGenerator):
+    """Enterprise C# code generator.
+
+    Emits idiomatic .NET architecture patterns with file-scoped namespaces, nullable
+    reference types, async/await interfaces, sealed records, and nested builder classes.
+    """
+
     name = "csharp_enterprise"
     language = "csharp"
     extension = ".cs"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic C# source file (.cs).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized C# source code.
+        """
         buf = StringIO()
         namespace_name = naming.class_name(sanity)
         class_name = naming.class_name(sanity)

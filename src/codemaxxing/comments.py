@@ -1,3 +1,9 @@
+"""Comment and docstring synthesis for generated synthetic code.
+
+Provides corpora of corporate enterprise comments and chaotic brainrot commentary,
+with sampling functions that blend styles based on the configured sanity score.
+"""
+
 import random
 
 CORPORATE_COMMENTS = [
@@ -70,18 +76,44 @@ CHAOS_DOCSTRINGS = [
 
 
 def comment(sanity: float) -> str:
+    """Generate a single-line comment string matching the requested sanity level.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 (chaos) and 1.0 (corporate).
+
+    Returns:
+        A comment string chosen either from corporate or chaotic commentary pools.
+    """
     if random.random() < sanity:
         return random.choice(CORPORATE_COMMENTS)
     return random.choice(CHAOS_COMMENTS)
 
 
 def docstring(sanity: float, name: str = "component") -> str:
+    """Generate a docstring comment for a class, method, or file component.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 (chaos) and 1.0 (corporate).
+        name: Logical name of the component being documented (interpolated in corporate docs).
+
+    Returns:
+        A docstring string tailored to the target component and sanity tone.
+    """
     if random.random() < sanity:
         return random.choice(CORPORATE_DOCSTRINGS).format(name=name)
     return random.choice(CHAOS_DOCSTRINGS)
 
 
 def block_comment(sanity: float, style: str = "//") -> list[str]:
+    """Generate a multi-line comment block formatted for a target language syntax.
+
+    Args:
+        sanity: Chaos/corporate weighting between 0.0 (chaos) and 1.0 (corporate).
+        style: Comment prefix string for the target language (e.g. '//', '#', '--').
+
+    Returns:
+        A list of comment lines prefixed with the specified comment style.
+    """
     lines = []
     num_lines = random.randint(2, 6)
     for _ in range(num_lines):

@@ -1,3 +1,9 @@
+"""PHP enterprise code generator.
+
+Synthesizes modern PHP source files with namespaces, contracts/interfaces,
+reusable traits, typed properties, docblocks, and nested execution contexts.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import comments, naming
 
 
 class PhpEnterpriseGenerator(SlopGenerator):
+    """Enterprise PHP code generator.
+
+    Emits PHP 8+ class files adhering to PSR-style architecture, including namespaces,
+    interface contracts, traits, constructor property promotion, and docblock annotations.
+    """
+
     name = "php_enterprise"
     language = "php"
     extension = ".php"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic PHP source file (.php).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized PHP source code.
+        """
         buf = StringIO()
         namespace_name = "Codemaxxing\\" + naming.class_name(sanity)
         class_name = naming.class_name(sanity)

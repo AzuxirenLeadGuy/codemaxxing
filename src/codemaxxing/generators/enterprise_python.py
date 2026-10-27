@@ -1,3 +1,9 @@
+"""Enterprise Python code generator.
+
+Synthesizes complex enterprise Python modules containing custom metaclasses,
+abstract base classes, type annotations, dataclasses, context managers, and logging pipelines.
+"""
+
 import random
 from io import StringIO
 
@@ -6,11 +12,26 @@ from codemaxxing import naming, comments
 
 
 class EnterprisePythonGenerator(SlopGenerator):
+    """Enterprise Python code generator.
+
+    Emits Python source modules featuring extensive structural ceremony, including
+    custom metaclasses, abstract interfaces, Generic protocols, and validation decorators.
+    """
+
     name = "enterprise_python"
     language = "python"
     extension = ".py"
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
+        """Generate a synthetic enterprise Python source file (.py).
+
+        Args:
+            sanity: Chaos/corporate weighting between 0.0 and 1.0.
+            file_index: File index for unique filename assignment.
+
+        Returns:
+            A `GeneratedFile` containing the synthesized Python source code.
+        """
         buf = StringIO()
         cname = naming.class_name(sanity)
         module_name = cname.lower()
