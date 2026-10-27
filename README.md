@@ -131,18 +131,27 @@ In `--lang all`, codemaxxing now guarantees every available language gets repres
 > "The code doesn't do anything but the PR was so big nobody wanted to review it so it got auto-merged"
 > — Senior Staff Engineer
 
+
+> "The scale of progress that we have achived and continuesly register holistically elevates the superimposing ethos of our organisation, and we are meticulously yet surely reaching ever high levels of record high PRs submitted and commits created that the AI can deal with it in our industry-grade harness"
+> — Corporate VP 
+
 ## Contributing
 
 Quality reviews are not considered harmful to velocity for this repository. Even for non-essential things, quality matters. PRs will be accepted for the following cases
 
 - Improving the efficiency of outputting code
-- Adding more variation in the output.
+- Adding more variation in the output, including (but not limited to):
+    - improve random naming fidelity
+    - add a new language generator
+    - tune generation volume or layout
+    - improve docs and contributor onboarding
+    - make generated output more realistic while preserving the repository’s tone
 - Specialised structures for a given programming language.
 
 ## FAQ
 
 **Is this useful?**
-No.
+Sometimes. but usually no.
 
 **Should I use this at work?**
 Absolutely.
