@@ -1,7 +1,8 @@
 """Enterprise Python code generator.
 
-Synthesizes complex enterprise Python modules containing custom metaclasses,
-abstract base classes, type annotations, dataclasses, context managers, and logging pipelines.
+Synthesizes diverse enterprise Python modules across multiple distinct architectural archetypes:
+async FastAPI-style microservices, descriptor-driven metaprogramming engines,
+Python 3.10+ structural pattern matching pipelines, and low-level introspection machines.
 """
 
 import random
@@ -14,8 +15,9 @@ from codemaxxing import naming, comments
 class EnterprisePythonGenerator(SlopGenerator):
     """Enterprise Python code generator.
 
-    Emits Python source modules featuring extensive structural ceremony, including
-    custom metaclasses, abstract interfaces, Generic protocols, and validation decorators.
+    Emits Python source modules featuring extensive structural ceremony across
+    four varied archetypes: async microservices, descriptor metaclasses,
+    dataclass pattern matchers, and reflective introspection engines.
     """
 
     name = "enterprise_python"
@@ -36,161 +38,201 @@ class EnterprisePythonGenerator(SlopGenerator):
         cname = naming.class_name(sanity)
         module_name = cname.lower()
 
-        # module docstring
         buf.write(f'"""\n{comments.docstring(sanity, cname)}\n\n')
-        buf.write(f"This module provides the {cname} implementation\n")
-        buf.write(f"for enterprise-grade workflow orchestration.\n")
+        buf.write(f"Module: {module_name}\n")
         buf.write(f'"""\n\n')
 
-        # imports
-        stdlib_imports = [
-            "from abc import ABC, abstractmethod",
-            "from typing import Any, Optional, Union, Protocol, TypeVar, Generic, Callable, Mapping, Sequence, Final",
-            "from dataclasses import dataclass, field",
-            "from functools import wraps, lru_cache",
-            "from enum import Enum, auto",
-            "import logging",
-            "import sys",
-            "import os",
-            "import uuid",
-            "import hashlib",
-            "import asyncio",
-            "from decimal import Decimal",
-            "from collections import defaultdict, deque, Counter",
-            "from contextlib import contextmanager",
-        ]
-        for imp in random.sample(stdlib_imports, random.randint(4, len(stdlib_imports))):
-            buf.write(f"{imp}\n")
-        buf.write("\n")
+        archetype = random.choice([
+            "async_fastapi_engine",
+            "metaclass_descriptor_magic",
+            "pattern_matching_dataclass",
+            "scientific_introspection_chaos",
+        ])
 
-        # type aliases
-        buf.write(f"T = TypeVar('T')\n")
-        buf.write(f"U = TypeVar('U')\n")
-        type_options = [
-            "Union[dict[str, Any], list[Any], None]",
-            "Optional[dict[str, Union[str, int, float, bool]]]",
-            "Callable[[Any], Optional[Any]]",
-            "Sequence[Mapping[str, Any]]",
-            "tuple[str, int, dict[str, Any]]",
-            "Union[list[str], set[str], tuple[str, ...]]",
-        ]
-        for _ in range(random.randint(2, 5)):
-            alias_name = naming.class_name(sanity) + "Type"
-            buf.write(f"{alias_name} = {random.choice(type_options)}\n")
-        buf.write("\n")
-        buf.write(f"logger = logging.getLogger(__name__)\n\n")
-
-        # metaclass
-        meta_name = naming.class_name(sanity) + "Meta"
-        buf.write(f"\nclass {meta_name}(type):\n")
-        buf.write(f'    """{comments.docstring(sanity, meta_name)}"""\n\n')
-        buf.write(f"    _instances: dict[type, Any] = {{}}\n\n")
-        buf.write(f"    def __call__(cls, *args: Any, **kwargs: Any) -> Any:\n")
-        buf.write(f"        if cls not in cls._instances:\n")
-        buf.write(f"            cls._instances[cls] = super().__call__(*args, **kwargs)\n")
-        buf.write(f"        return cls._instances[cls]\n\n")
-
-        # abstract base class
-        abc_name = "Abstract" + naming.class_name(sanity)
-        buf.write(f"\nclass {abc_name}(ABC):\n")
-        buf.write(f'    """{comments.docstring(sanity, abc_name)}"""\n\n')
-        num_abstract = random.randint(3, 7)
-        for _ in range(num_abstract):
-            mname = naming.method_name(sanity)
-            params = ", ".join(
-                f"{naming.var_name(sanity)}: Any"
-                for _ in range(random.randint(1, 4))
-            )
-            buf.write(f"    @abstractmethod\n")
-            buf.write(f"    def {mname}(self, {params}) -> Any:\n")
-            buf.write(f"        # {comments.comment(sanity)}\n")
-            buf.write(f"        ...\n\n")
-
-        # enum
-        enum_name = naming.class_name(sanity) + "Status"
-        buf.write(f"\nclass {enum_name}(Enum):\n")
-        buf.write(f'    """{comments.docstring(sanity, enum_name)}"""\n\n')
-        enum_values = [
-            "PENDING", "ACTIVE", "PROCESSING", "VALIDATING", "TRANSFORMING",
-            "ORCHESTRATING", "DELEGATING", "RESOLVING", "FINALIZING", "COMPLETED",
-            "FAILED", "RETRYING", "CANCELLED", "DEPRECATED", "UNKNOWN",
-            "ASCENDING", "TRANSCENDING", "VIBING", "EXISTING",
-            "QUARANTINED", "DRAINING", "THROTTLED", "BACKOFF", "SUSPENDED",
-            "DEGRADED", "RECONCILING", "PROVISIONING", "TERMINATED",
-            "MOGGED", "MAXING", "GOONING", "SCHIZO", "SUPERSEDED",
-            "DESERIALIZED", "UNHINGED", "IMMUTABLE",
-        ]
-        for val in random.sample(enum_values, random.randint(6, min(20, len(enum_values)))):
-            buf.write(f"    {val} = auto()\n")
-        buf.write("\n")
-
-        # concrete class
-        buf.write(f"\nclass {cname}({abc_name}, metaclass={meta_name}):\n")
-        buf.write(f'    """\n    {comments.docstring(sanity, cname)}\n\n')
-        for line in comments.block_comment(sanity, "   "):
-            buf.write(f"    {line}\n")
-        buf.write(f'    """\n\n')
-
-        # __init__ with many params
-        num_params = random.randint(8, 15)
-        params_list = [f"{naming.var_name(sanity)}: Any = None" for _ in range(num_params)]
-        buf.write(f"    def __init__(\n")
-        buf.write(f"        self,\n")
-        for p in params_list:
-            buf.write(f"        {p},\n")
-        buf.write(f"    ) -> None:\n")
-        buf.write(f'        """{comments.docstring(sanity, "__init__")}"""\n')
-        for p in params_list:
-            pname = p.split(":")[0]
-            buf.write(f"        self._{pname} = {pname}\n")
-        buf.write(f"        self._initialized = True\n")
-        buf.write(f"        self._state = {enum_name}.PENDING\n")
-        buf.write(f"        logger.info(f'Initialized {cname}')\n\n")
-
-        # properties
-        for p in params_list[:5]:
-            pname = p.split(":")[0]
-            buf.write(f"    @property\n")
-            buf.write(f"    def {pname}(self) -> Any:\n")
-            buf.write(f"        # {comments.comment(sanity)}\n")
-            buf.write(f"        return self._{pname}\n\n")
-            buf.write(f"    @{pname}.setter\n")
-            buf.write(f"    def {pname}(self, value: Any) -> None:\n")
-            buf.write(f"        self._{pname} = value\n\n")
-
-        # implement abstract methods
-        for _ in range(num_abstract):
-            mname = naming.method_name(sanity)
-            params = ", ".join(
-                f"{naming.var_name(sanity)}: Any"
-                for _ in range(random.randint(1, 3))
-            )
-            buf.write(f"    def {mname}(self, {params}) -> Any:\n")
-            buf.write(f'        """{comments.docstring(sanity, mname)}"""\n')
-            num_body = random.randint(3, 8)
-            for _ in range(num_body):
-                vname = naming.var_name(sanity)
-                buf.write(f"        {vname} = None  # {comments.comment(sanity)}\n")
-            buf.write(f"        return None\n\n")
-
-        # factory classmethod
-        buf.write(f"    @classmethod\n")
-        buf.write(f"    def create(cls, **kwargs: Any) -> '{cname}':\n")
-        buf.write(f'        """{comments.docstring(sanity, "create")}"""\n')
-        buf.write(f"        return cls(**kwargs)\n\n")
-
-        # context manager
-        buf.write(f"    def __enter__(self) -> '{cname}':\n")
-        buf.write(f"        self._state = {enum_name}.ACTIVE\n")
-        buf.write(f"        return self\n\n")
-        buf.write(f"    def __exit__(self, *args: Any) -> None:\n")
-        buf.write(f"        self._state = {enum_name}.COMPLETED\n\n")
-
-        # repr
-        buf.write(f"    def __repr__(self) -> str:\n")
-        buf.write(f"        return f'{cname}(state={{self._state}})'\n")
+        if archetype == "async_fastapi_engine":
+            self._generate_async_engine(buf, sanity, cname)
+        elif archetype == "metaclass_descriptor_magic":
+            self._generate_metaclass_engine(buf, sanity, cname)
+        elif archetype == "pattern_matching_dataclass":
+            self._generate_pattern_matching(buf, sanity, cname)
+        else:
+            self._generate_introspection_chaos(buf, sanity, cname)
 
         content = buf.getvalue()
         line_count = content.count("\n")
         filename = f"python/{module_name}_{file_index}{self.extension}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
+
+    def _generate_async_engine(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit an async microservice engine with asyncio queues and typed models."""
+        buf.write("from __future__ import annotations\n\n")
+        buf.write("import asyncio\nimport logging\nimport uuid\nfrom typing import Any, AsyncIterator, Optional\n")
+        buf.write("from dataclasses import dataclass, field\n\n")
+        buf.write("logger = logging.getLogger(__name__)\n\n\n")
+
+        # Pydantic-like dataclass
+        payload_name = f"{cname}Payload"
+        buf.write(f"@dataclass(slots=True)\nclass {payload_name}:\n")
+        buf.write(f'    """{comments.docstring(sanity, payload_name)}"""\n')
+        buf.write(f"    correlation_id: str = field(default_factory=lambda: str(uuid.uuid4()))\n")
+        buf.write(f"    payload: dict[str, Any] = field(default_factory=dict)\n")
+        buf.write(f"    is_active: bool = True\n")
+        buf.write(f"    retry_budget: int = 3\n\n\n")
+
+        # Async engine class
+        buf.write(f"class {cname}:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        buf.write(f"    def __init__(self, concurrency_limit: int = 16) -> None:\n")
+        buf.write(f"        self._queue: asyncio.Queue[{payload_name}] = asyncio.Queue(maxsize=1024)\n")
+        buf.write(f"        self._semaphore = asyncio.Semaphore(concurrency_limit)\n")
+        buf.write(f"        self._running = False\n")
+        buf.write(f"        self._metrics: dict[str, int] = {{'processed': 0, 'errors': 0}}\n\n")
+
+        # Async context manager
+        buf.write(f"    async def __aenter__(self) -> {cname}:\n")
+        buf.write(f"        self._running = True\n")
+        buf.write(f"        logger.info('Started async engine: {cname}')\n")
+        buf.write(f"        return self\n\n")
+        buf.write(f"    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:\n")
+        buf.write(f"        self._running = False\n")
+        buf.write(f"        await self.drain()\n\n")
+
+        # Async methods
+        for _ in range(random.randint(3, 5)):
+            mname = naming.method_name(sanity)
+            var_arg = naming.var_name(sanity)
+            buf.write(f"    async def {mname}(self, {var_arg}: {payload_name}) -> Optional[dict[str, Any]]:\n")
+            buf.write(f'        """{comments.comment(sanity)}"""\n')
+            buf.write(f"        async with self._semaphore:\n")
+            buf.write(f"            if not self._running:\n")
+            buf.write(f"                raise RuntimeError('{cname} engine is stopped')\n")
+            buf.write(f"            # {comments.comment(sanity)}\n")
+            buf.write(f"            await self._queue.put({var_arg})\n")
+            buf.write(f"            self._metrics['processed'] += 1\n")
+            buf.write(f"            return {{'status': 'ACK', 'id': {var_arg}.correlation_id}}\n\n")
+
+        # Async generator
+        buf.write(f"    async def stream_events(self) -> AsyncIterator[{payload_name}]:\n")
+        buf.write(f"        while self._running or not self._queue.empty():\n")
+        buf.write(f"            try:\n")
+        buf.write(f"                event = await asyncio.wait_for(self._queue.get(), timeout=0.1)\n")
+        buf.write(f"                yield event\n")
+        buf.write(f"                self._queue.task_done()\n")
+        buf.write(f"            except asyncio.TimeoutError:\n")
+        buf.write(f"                continue\n\n")
+
+        buf.write(f"    async def drain(self) -> None:\n")
+        buf.write(f"        await self._queue.join()\n")
+        buf.write(f"        logger.info(f'Drained {cname} successfully')\n")
+
+    def _generate_metaclass_engine(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit advanced metaprogramming with custom descriptors and __init_subclass__."""
+        buf.write("from typing import Any, Callable, TypeVar, Generic\n")
+        buf.write("import functools\n\n")
+
+        descriptor_name = f"{cname}Descriptor"
+        buf.write(f"class {descriptor_name}:\n")
+        buf.write(f'    """{comments.docstring(sanity, descriptor_name)}"""\n\n')
+        buf.write(f"    def __set_name__(self, owner: type, name: str) -> None:\n")
+        buf.write(f"        self.private_name = f'_{{name}}'\n\n")
+        buf.write(f"    def __get__(self, instance: Any, owner: type) -> Any:\n")
+        buf.write(f"        if instance is None:\n")
+        buf.write(f"            return self\n")
+        buf.write(f"        return getattr(instance, self.private_name, None)\n\n")
+        buf.write(f"    def __set__(self, instance: Any, value: Any) -> None:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write(f"        setattr(instance, self.private_name, value)\n\n\n")
+
+        meta_name = f"{cname}Meta"
+        buf.write(f"class {meta_name}(type):\n")
+        buf.write(f"    def __new__(mcs, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> type:\n")
+        buf.write(f"        attrs['_registry'] = {{k: v for k, v in attrs.items() if not k.startswith('_')}}\n")
+        buf.write(f"        return super().__new__(mcs, name, bases, attrs)\n\n\n")
+
+        buf.write(f"class {cname}(metaclass={meta_name}):\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        for _ in range(random.randint(3, 6)):
+            field_name = naming.var_name(sanity)
+            buf.write(f"    {field_name} = {descriptor_name}()\n")
+        buf.write("\n")
+
+        buf.write(f"    def __init_subclass__(cls, **kwargs: Any) -> None:\n")
+        buf.write(f"        super().__init_subclass__(**kwargs)\n")
+        buf.write(f"        cls._is_subclassed = True\n\n")
+
+        for _ in range(random.randint(3, 5)):
+            mname = naming.method_name(sanity)
+            buf.write(f"    def {mname}(self, *args: Any, **kwargs: Any) -> dict[str, Any]:\n")
+            buf.write(f'        # {comments.comment(sanity)}\n')
+            buf.write(f"        return {{'method': '{mname}', 'args_count': len(args), 'kwargs': list(kwargs.keys())}}\n\n")
+
+    def _generate_pattern_matching(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit Python 3.10+ match/case structural pattern matching with dataclasses."""
+        buf.write("from dataclasses import dataclass\n")
+        buf.write("from typing import Union\n\n")
+
+        state_a = f"{cname}InitialState"
+        state_b = f"{cname}ProcessingState"
+        state_c = f"{cname}CompletedState"
+
+        buf.write(f"@dataclass(frozen=True)\nclass {state_a}:\n    token: str\n\n")
+        buf.write(f"@dataclass(frozen=True)\nclass {state_b}:\n    token: str\n    depth: int\n\n")
+        buf.write(f"@dataclass(frozen=True)\nclass {state_c}:\n    token: str\n    result_code: int\n\n")
+
+        buf.write(f"StateUnion = Union[{state_a}, {state_b}, {state_c}]\n\n\n")
+
+        buf.write(f"class {cname}:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    def {mname}(self, state: StateUnion) -> StateUnion:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write(f"        match state:\n")
+        buf.write(f"            case {state_a}(token=t):\n")
+        buf.write(f"                return {state_b}(token=t, depth=1)\n")
+        buf.write(f"            case {state_b}(token=t, depth=d) if d < 5:\n")
+        buf.write(f"                return {state_b}(token=t, depth=d + 1)\n")
+        buf.write(f"            case {state_b}(token=t, depth=_):\n")
+        buf.write(f"                return {state_c}(token=t, result_code=200)\n")
+        buf.write(f"            case {state_c}(token=_, result_code=_):\n")
+        buf.write(f"                return state\n")
+        buf.write(f"            case _:\n")
+        buf.write(f"                raise ValueError(f'Unknown state: {{state}}')\n\n")
+
+        for _ in range(random.randint(2, 4)):
+            sub_m = naming.method_name(sanity)
+            buf.write(f"    def {sub_m}(self, raw_input: str) -> StateUnion:\n")
+            buf.write(f"        # {comments.comment(sanity)}\n")
+            buf.write(f"        initial = {state_a}(token=raw_input)\n")
+            buf.write(f"        return self.{mname}(initial)\n\n")
+
+    def _generate_introspection_chaos(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit low-level introspection and memoized recursive functions."""
+        buf.write("import sys\nimport functools\nfrom typing import Any\n\n")
+
+        func_name = naming.method_name(sanity)
+        buf.write(f"@functools.lru_cache(maxsize=1024)\n")
+        buf.write(f"def {func_name}(depth: int) -> int:\n")
+        buf.write(f'    """{comments.docstring(sanity, func_name)}"""\n')
+        buf.write(f"    if depth <= 1:\n")
+        buf.write(f"        return 1\n")
+        buf.write(f"    # {comments.comment(sanity)}\n")
+        buf.write(f"    frame = sys._getframe()\n")
+        buf.write(f"    _ = frame.f_code.co_name\n")
+        buf.write(f"    return ({func_name}(depth - 1) + depth) % 65536\n\n\n")
+
+        buf.write(f"class {cname}:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        buf.write(f"    def __init__(self) -> None:\n")
+        buf.write(f"        self._shadow = bytearray(b'{comments.comment(sanity)[:32]}')\n")
+        buf.write(f"        self._history = [x ** 2 for x in range(16) if x % 2 == 0]\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    def {mname}(self, seed: int) -> dict[str, Any]:\n")
+        buf.write(f"        calc = {func_name}(seed % 32)\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write(f"        return {{\n")
+        buf.write(f"            'result': calc,\n")
+        buf.write(f"            'shadow_len': len(self._shadow),\n")
+        buf.write(f"            'history': self._history,\n")
+        buf.write(f"        }}\n")

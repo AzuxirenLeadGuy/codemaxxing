@@ -1,7 +1,9 @@
 """Ruby chaos code generator.
 
-Synthesizes idiomatic Ruby source files featuring frozen string literals,
-nested module hierarchies, `attr_accessor` symbols, and DSL-style method chains.
+Synthesizes rich Ruby source files across multiple distinct archetypes:
+Metaprogramming wizardry with define_method and method_missing,
+ActiveSupport-style Concerns with callbacks, Ruby 3 pattern matching with Fibers,
+and unhinged core monkey-patching extensions.
 """
 
 import random
@@ -14,8 +16,8 @@ from codemaxxing import comments, naming
 class RubyChaosGenerator(SlopGenerator):
     """Ruby language code generator.
 
-    Emits dynamic Ruby code with namespaced modules, classes, extensive attr_accessors,
-    telemetry arrays, and chainable instance methods.
+    Emits dynamic Ruby source code spanning metaprogramming hooks,
+    modular concerns, modern pattern matching, and core monkey-patches.
     """
 
     name = "ruby_chaos"
@@ -38,54 +40,96 @@ class RubyChaosGenerator(SlopGenerator):
 
         buf.write(f"# {comments.comment(sanity)}\n")
         buf.write("# frozen_string_literal: true\n\n")
-        buf.write(f"module {module_name}\n")
-        buf.write(f"  # {comments.docstring(sanity, class_name)}\n")
-        buf.write(f"  class {class_name}\n")
 
-        attrs = [naming.var_name(sanity) for _ in range(random.randint(8, 14))]
-        buf.write(f"    attr_accessor {', '.join(f':{attr}' for attr in attrs)}\n\n")
+        archetype = random.choice([
+            "metaprogramming_dsl",
+            "rails_concern",
+            "fiber_pattern_matching",
+            "monkey_patch_chaos",
+        ])
 
-        init_states = [":pending", ":initializing", ":standby", ":quarantined", ":vibing"]
-        buf.write("    def initialize(**kwargs)\n")
-        for attr in attrs:
-            buf.write(f"      @{attr} = kwargs.fetch(:{attr}, nil)\n")
-        buf.write("      @telemetry = []\n")
-        buf.write(f"      @state = {random.choice(init_states)}\n")
-        buf.write("    end\n\n")
-
-        for _ in range(random.randint(6, 10)):
-            method_name = naming.method_name(sanity)
-            arg_names = [naming.var_name(sanity) for _ in range(random.randint(1, 4))]
-            buf.write(f"    def {method_name}({', '.join(arg_names)})\n")
-            buf.write(f"      # {comments.comment(sanity)}\n")
-            buf.write(f"      @state = {random.choice([':processing', ':running', ':evaluating', ':mutating'])}\n")
-            for _ in range(random.randint(4, 8)):
-                local_name = naming.var_name(sanity)
-                buf.write(f"      {local_name} = [{', '.join(arg_names)}].compact.sample\n")
-                fallback = random.choice([f"'{comments.comment(sanity)}'", ":error", "42", "true", "nil"])
-                buf.write(f"      @telemetry << ({local_name}.inspect rescue {fallback})\n")
-            buf.write(f"      @state = {random.choice([':complete', ':transcended', ':drained', ':shipped', ':ok'])}\n")
-            buf.write("      nil\n")
-            buf.write("    end\n\n")
-
-        buf.write("    def metrics\n")
-        buf.write("      [\n")
-        for _ in range(random.randint(14, 22)):
-            buf.write(f"        '{comments.comment(sanity)}',\n")
-        buf.write("      ]\n")
-        buf.write("    end\n\n")
-
-        for _ in range(random.randint(2, 4)):
-            nested_name = naming.class_name(sanity)
-            buf.write(f"    class {nested_name}\n")
-            for i in range(random.randint(3, 6)):
-                buf.write(f"      VALUE_{i} = '{comments.comment(sanity)}'\n")
-            buf.write("    end\n\n")
-
-        buf.write("  end\n")
-        buf.write("end\n")
+        if archetype == "metaprogramming_dsl":
+            self._generate_metaprogramming(buf, sanity, module_name, class_name)
+        elif archetype == "rails_concern":
+            self._generate_rails_concern(buf, sanity, module_name, class_name)
+        elif archetype == "fiber_pattern_matching":
+            self._generate_pattern_matching(buf, sanity, module_name, class_name)
+        else:
+            self._generate_monkey_patch(buf, sanity, module_name, class_name)
 
         content = buf.getvalue()
         line_count = content.count("\n")
         filename = f"ruby/{class_name.lower()}_{file_index}{self.extension}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
+
+    def _generate_metaprogramming(self, buf: StringIO, sanity: float, mod_name: str, class_name: str) -> None:
+        """Emit define_method and method_missing metaprogramming."""
+        buf.write(f"module {mod_name}\n")
+        buf.write(f"  class {class_name}\n")
+        buf.write("    def self.enterprise_attr(*names)\n")
+        buf.write("      names.each do |name|\n")
+        buf.write("        define_method(name) { instance_variable_get(\"@#{name}\") }\n")
+        buf.write("        define_method(\"#{name}=\") { |val| instance_variable_set(\"@#{name}\", val) }\n")
+        buf.write("      end\n")
+        buf.write("    end\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    enterprise_attr :{mname}_flag, :correlation_token\n\n")
+
+        buf.write("    def method_missing(method_name, *args, &block)\n")
+        buf.write(f"      # {comments.comment(sanity)}\n")
+        buf.write("      if method_name.to_s.start_with?('synergize_')\n")
+        buf.write("        args.first.to_s.upcase\n")
+        buf.write("      else\n")
+        buf.write("        super\n")
+        buf.write("      end\n")
+        buf.write("    end\n\n")
+
+        buf.write("    def respond_to_missing?(method_name, include_private = false)\n")
+        buf.write("      method_name.to_s.start_with?('synergize_') || super\n")
+        buf.write("    end\n")
+        buf.write("  end\n")
+        buf.write("end\n")
+
+    def _generate_rails_concern(self, buf: StringIO, sanity: float, mod_name: str, class_name: str) -> None:
+        """Emit ActiveSupport::Concern style modular architecture."""
+        buf.write(f"module {mod_name}\n")
+        buf.write(f"  module {class_name}Concern\n")
+        buf.write("    def self.included(base)\n")
+        buf.write("      base.extend(ClassMethods)\n")
+        buf.write("    end\n\n")
+        buf.write("    module ClassMethods\n")
+        buf.write("      def configure_telemetry(sink)\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write("      end\n")
+        buf.write("    end\n")
+        buf.write("  end\n")
+        buf.write("end\n")
+
+    def _generate_pattern_matching(self, buf: StringIO, sanity: float, mod_name: str, class_name: str) -> None:
+        """Emit Ruby 3 pattern matching and tap/then cascades."""
+        buf.write(f"module {mod_name}\n")
+        buf.write(f"  class {class_name}\n")
+        mname = naming.method_name(sanity)
+        buf.write(f"    def {mname}(event)\n")
+        buf.write("      case event\n")
+        buf.write("      in { status: :ok, payload: String => str }\n")
+        buf.write("        str.reverse.tap { |s| s.freeze }\n")
+        buf.write("      in { status: :error, code: Integer => code }\n")
+        buf.write("        \"HALT_#{code}\"\n")
+        buf.write("      else\n")
+        buf.write("        :unhandled\n")
+        buf.write("      end\n")
+        buf.write("    end\n")
+        buf.write("  end\n")
+        buf.write("end\n")
+
+    def _generate_monkey_patch(self, buf: StringIO, sanity: float, mod_name: str, class_name: str) -> None:
+        """Emit core monkey patching extensions."""
+        buf.write("class ::String\n")
+        mname = naming.method_name(sanity)
+        buf.write(f"  def {mname}_enterprise\n")
+        buf.write(f"    # {comments.comment(sanity)}\n")
+        buf.write("    \"[ENTERPRISE] #{self}\"\n")
+        buf.write("  end\n")
+        buf.write("end\n")

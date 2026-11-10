@@ -1,7 +1,8 @@
 """JavaScript and TypeScript synthetic code generator.
 
-Synthesizes JS/TS source files featuring callback hell, chained Promises, mock async
-wrappers, type declarations (for TypeScript), and module export ceremony.
+Synthesizes modern JavaScript and TypeScript source files across diverse archetypes:
+TypeScript reactive observable streams, React hook components, Node.js stream microservices,
+and metaprogramming proxy interceptor traps.
 """
 
 import random
@@ -14,8 +15,8 @@ from codemaxxing import naming, comments
 class JavaScriptGenerator(SlopGenerator):
     """JavaScript/TypeScript code generator.
 
-    Emits JavaScript or TypeScript files full of nested asynchronous callbacks,
-    Promise chains, proxy handlers, and excessive imports.
+    Emits JavaScript or TypeScript source files spanning reactive observables,
+    hook-driven components, Node.js streams, and dynamic proxy traps.
     """
 
     name = "javascript"
@@ -33,125 +34,166 @@ class JavaScriptGenerator(SlopGenerator):
             A `GeneratedFile` containing the synthesized JavaScript or TypeScript code.
         """
         buf = StringIO()
-        use_ts = random.random() < 0.4
+        use_ts = random.random() < 0.6  # 60% TypeScript for rich type syntax
         ext = ".ts" if use_ts else ".js"
         module_name = naming.class_name(sanity)
 
-        # mixed imports (require + import at low sanity)
+        archetype = random.choice([
+            "ts_reactive_stream",
+            "react_hook_component",
+            "node_stream_service",
+            "chaos_proxy_trap",
+        ])
+
         buf.write(f"// {comments.comment(sanity)}\n")
-        buf.write(f"'use strict';\n\n")
+        buf.write("'use strict';\n\n")
 
-        num_imports = random.randint(8, 20)
-        for _ in range(num_imports):
-            imp_name = naming.class_name(sanity)
-            if sanity < 0.3 and random.random() < 0.5:
-                buf.write(f"const {imp_name} = require('./{naming.class_name(sanity)}');\n")
-            else:
-                buf.write(f"import {{ {imp_name} }} from './{naming.class_name(sanity)}';\n")
-        buf.write("\n")
-
-        # TypeScript types (if TS or sometimes anyway because chaos)
-        if use_ts or sanity < 0.3:
-            num_types = random.randint(3, 8)
-            ts_type_options = [
-                'string', 'number', 'boolean', 'any', 'unknown', 'never',
-                'void', 'null | undefined', 'Record<string, unknown>',
-                'Array<string | number>', 'Promise<void>', 'Map<string, any>',
-                'Set<string>', 'symbol', 'bigint', 'Function',
-                'ReadonlyArray<unknown>', 'Uint8Array', 'Error | null',
-            ]
-            for _ in range(num_types):
-                tname = naming.class_name(sanity) + "Type"
-                if random.random() < 0.5:
-                    buf.write(f"type {tname} = {{\n")
-                    for _ in range(random.randint(3, 8)):
-                        buf.write(f"  {naming.var_name(sanity)}: {random.choice(ts_type_options)};\n")
-                    buf.write(f"}};\n\n")
-                else:
-                    inner = naming.class_name(sanity) + "Type"
-                    buf.write(f"type {tname} = {{ value: {inner} | null | undefined | {tname} }};\n\n")
-
-        # massive switch statement
-        buf.write(f"// {comments.comment(sanity)}\n")
-        switch_func = naming.method_name(sanity)
-        buf.write(f"function {switch_func}(input) {{\n")
-        buf.write(f"  switch (input) {{\n")
-        num_cases = random.randint(20, 50)
-        for i in range(num_cases):
-            case_val = random.choice([
-                f"'{naming.var_name(sanity)}'",
-                str(random.randint(0, 999)),
-                f"'{random.choice(naming.CHAOS_WORDS)}'",
-                f"'event_{naming.method_name(sanity)}'",
-                f"'STATUS_{random.randint(100, 599)}'",
-            ])
-            buf.write(f"    case {case_val}:\n")
-            buf.write(f"      console.log('{naming.var_name(sanity)}'); // {comments.comment(sanity)}\n")
-            buf.write(f"      break;\n")
-        buf.write(f"    default:\n")
-        buf.write(f"      return null; // {comments.comment(sanity)}\n")
-        buf.write(f"  }}\n")
-        buf.write(f"}}\n\n")
-
-        # callback hell
-        buf.write(f"// {comments.comment(sanity)}\n")
-        callback_func = naming.method_name(sanity)
-        buf.write(f"function {callback_func}(callback) {{\n")
-        depth = random.randint(5, 10)
-        for d in range(depth):
-            indent = "  " * (d + 1)
-            vname = naming.var_name(sanity)
-            buf.write(f"{indent}setTimeout(function() {{\n")
-            buf.write(f"{indent}  var {vname} = null; // {comments.comment(sanity)}\n")
-            buf.write(f"{indent}  console.log('{naming.var_name(sanity)}');\n")
-        for d in range(depth, 0, -1):
-            indent = "  " * d
-            buf.write(f"{indent}}}, {random.randint(0, 5000)});\n")
-        buf.write(f"}}\n\n")
-
-        # promise chain
-        buf.write(f"// {comments.comment(sanity)}\n")
-        promise_func = naming.method_name(sanity)
-        buf.write(f"function {promise_func}() {{\n")
-        buf.write(f"  return new Promise((resolve, reject) => {{\n")
-        buf.write(f"    resolve(undefined);\n")
-        buf.write(f"  }})\n")
-        chain_len = random.randint(5, 15)
-        for _ in range(chain_len):
-            vname = naming.var_name(sanity)
-            buf.write(f"    .then(({vname}) => {{\n")
-            buf.write(f"      // {comments.comment(sanity)}\n")
-            buf.write(f"      return {vname};\n")
-            buf.write(f"    }})\n")
-        buf.write(f"    .catch((err) => {{\n")
-        buf.write(f"      // {comments.comment(sanity)}\n")
-        buf.write(f"      return null;\n")
-        buf.write(f"    }});\n")
-        buf.write(f"}}\n\n")
-
-        # class with methods that do nothing
-        buf.write(f"class {module_name} {{\n")
-        buf.write(f"  constructor() {{\n")
-        num_props = random.randint(5, 12)
-        for _ in range(num_props):
-            buf.write(f"    this.{naming.var_name(sanity)} = null;\n")
-        buf.write(f"  }}\n\n")
-
-        num_methods = random.randint(4, 10)
-        for _ in range(num_methods):
-            mname = naming.method_name(sanity)
-            params = ", ".join(naming.var_name(sanity) for _ in range(random.randint(0, 4)))
-            buf.write(f"  // {comments.comment(sanity)}\n")
-            buf.write(f"  {mname}({params}) {{\n")
-            for _ in range(random.randint(2, 6)):
-                buf.write(f"    const {naming.var_name(sanity)} = null; // {comments.comment(sanity)}\n")
-            buf.write(f"    return undefined;\n")
-            buf.write(f"  }}\n\n")
-        buf.write(f"}}\n\n")
-
-        buf.write(f"module.exports = {{ {module_name}, {switch_func}, {callback_func}, {promise_func} }};\n")
+        if archetype == "ts_reactive_stream":
+            self._generate_reactive_stream(buf, sanity, module_name, use_ts)
+        elif archetype == "react_hook_component":
+            self._generate_hook_component(buf, sanity, module_name, use_ts)
+        elif archetype == "node_stream_service":
+            self._generate_node_service(buf, sanity, module_name, use_ts)
+        else:
+            self._generate_proxy_trap(buf, sanity, module_name, use_ts)
 
         content = buf.getvalue()
         line_count = content.count("\n")
         filename = f"js/{module_name}_{file_index}{ext}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
+
+    def _generate_reactive_stream(self, buf: StringIO, sanity: float, module_name: str, use_ts: bool) -> None:
+        """Emit TypeScript reactive observable stream with generics and operators."""
+        if use_ts:
+            buf.write("export type Action<T = unknown> = { type: string; payload: T; timestamp: number };\n")
+            buf.write("export type Operator<T, R> = (source: AsyncIterable<T>) => AsyncIterable<R>;\n\n")
+
+        buf.write(f"export class {module_name}Stream {{\n")
+        buf.write("  constructor() {\n")
+        buf.write("    this._handlers = new Map();\n")
+        buf.write("    this._isTerminated = false;\n")
+        buf.write("  }\n\n")
+
+        # Subscribe method
+        buf.write("  subscribe(eventType, callback) {\n")
+        buf.write(f"    // {comments.comment(sanity)}\n")
+        buf.write("    if (!this._handlers.has(eventType)) {\n")
+        buf.write("      this._handlers.set(eventType, new Set());\n")
+        buf.write("    }\n")
+        buf.write("    this._handlers.get(eventType).add(callback);\n")
+        buf.write("    return () => this._handlers.get(eventType).delete(callback);\n")
+        buf.write("  }\n\n")
+
+        # Dispatch method
+        mname = naming.method_name(sanity)
+        buf.write(f"  async {mname}(event) {{\n")
+        buf.write(f"    // {comments.comment(sanity)}\n")
+        buf.write("    const listeners = this._handlers.get(event.type) || [];\n")
+        buf.write("    const results = await Promise.allSettled(\n")
+        buf.write("      Array.from(listeners).map(fn => fn(event))\n")
+        buf.write("    );\n")
+        buf.write("    return results.filter(r => r.status === 'fulfilled').map(r => r.value);\n")
+        buf.write("  }\n\n")
+
+        # Async generator pipe
+        buf.write("  async *pipe(items, ...operators) {\n")
+        buf.write("    let current = items;\n")
+        buf.write("    for (const op of operators) {\n")
+        buf.write("      current = op(current);\n")
+        buf.write("    }\n")
+        buf.write("    for await (const val of current) {\n")
+        buf.write("      yield val;\n")
+        buf.write("    }\n")
+        buf.write("  }\n")
+        buf.write("}\n")
+
+    def _generate_hook_component(self, buf: StringIO, sanity: float, module_name: str, use_ts: bool) -> None:
+        """Emit a modern React hook and UI component pattern."""
+        buf.write("// Mock React Hooks ecosystem\n")
+        buf.write("const useState = (init) => [init, (v) => v];\n")
+        buf.write("const useEffect = (cb, deps) => { cb(); };\n")
+        buf.write("const useMemo = (fn, deps) => fn();\n")
+        buf.write("const useRef = (init) => ({ current: init });\n\n")
+
+        hook_name = f"use{module_name}"
+        buf.write(f"export function {hook_name}(initialConfig = {{}}) {{\n")
+        buf.write("  const [state, setState] = useState({ loading: false, data: null, error: null });\n")
+        buf.write("  const renderCount = useRef(0);\n\n")
+        buf.write("  useEffect(() => {\n")
+        buf.write("    renderCount.current += 1;\n")
+        buf.write(f"    // {comments.comment(sanity)}\n")
+        buf.write("    const timer = setTimeout(() => {\n")
+        buf.write("      setState({ loading: false, data: { status: 'ONLINE', count: renderCount.current }, error: null });\n")
+        buf.write("    }, 50);\n")
+        buf.write("    return () => clearTimeout(timer);\n")
+        buf.write("  }, []);\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"  const {mname} = useMemo(() => () => {{\n")
+        buf.write(f"    // {comments.comment(sanity)}\n")
+        buf.write("    return { rendered: renderCount.current, timestamp: Date.now() };\n")
+        buf.write("  }}, [state]);\n\n")
+        buf.write(f"  return {{ state, {mname} }};\n")
+        buf.write("}\n\n")
+
+        buf.write(f"export function {module_name}Component(props) {{\n")
+        buf.write(f"  const {{ state, {mname} }} = {hook_name}(props);\n")
+        buf.write("  return {\n")
+        buf.write("    type: 'div',\n")
+        buf.write("    props: { className: 'enterprise-container', children: state.data ? 'Ready' : 'Loading' },\n")
+        buf.write("  };\n")
+        buf.write("}\n")
+
+    def _generate_node_service(self, buf: StringIO, sanity: float, module_name: str, use_ts: bool) -> None:
+        """Emit Node.js microservice router with middleware and EventEmitter."""
+        buf.write("const EventEmitter = require('events');\n\n")
+        buf.write(f"export class {module_name}Service extends EventEmitter {{\n")
+        buf.write("  constructor(options = {}) {\n")
+        buf.write("    super();\n")
+        buf.write("    this.options = options;\n")
+        buf.write("    this.middlewares = [];\n")
+        buf.write("  }\n\n")
+
+        buf.write("  use(fn) {\n")
+        buf.write("    this.middlewares.push(fn);\n")
+        buf.write("    return this;\n")
+        buf.write("  }\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"  async {mname}(ctx) {{\n")
+        buf.write(f"    // {comments.comment(sanity)}\n")
+        buf.write("    let index = -1;\n")
+        buf.write("    const dispatch = async (i) => {\n")
+        buf.write("      if (i <= index) throw new Error('next() called multiple times');\n")
+        buf.write("      index = i;\n")
+        buf.write("      const fn = this.middlewares[i];\n")
+        buf.write("      if (!fn) return;\n")
+        buf.write("      return fn(ctx, () => dispatch(i + 1));\n")
+        buf.write("    };\n")
+        buf.write("    await dispatch(0);\n")
+        buf.write(f"    this.emit('{mname}:complete', ctx);\n")
+        buf.write("    return ctx;\n")
+        buf.write("  }\n")
+        buf.write("}\n")
+
+    def _generate_proxy_trap(self, buf: StringIO, sanity: float, module_name: str, use_ts: bool) -> None:
+        """Emit dynamic Proxy metaprogramming traps with reflection."""
+        buf.write(f"export function create{module_name}Proxy(target = {{}}) {{\n")
+        buf.write("  const shadowStore = new Map();\n\n")
+        buf.write("  return new Proxy(target, {\n")
+        buf.write("    get(obj, prop, receiver) {\n")
+        buf.write("      if (prop === 'isProxy') return true;\n")
+        buf.write("      if (shadowStore.has(prop)) return shadowStore.get(prop);\n")
+        buf.write(f"      // {comments.comment(sanity)}\n")
+        buf.write("      if (typeof prop === 'string' && prop.startsWith('get')) {\n")
+        buf.write("        return () => Reflect.get(obj, prop.slice(3).toLowerCase(), receiver);\n")
+        buf.write("      }\n")
+        buf.write("      return Reflect.get(obj, prop, receiver);\n")
+        buf.write("    },\n\n")
+        buf.write("    set(obj, prop, value, receiver) {\n")
+        buf.write(f"      // {comments.comment(sanity)}\n")
+        buf.write("      shadowStore.set(prop, value);\n")
+        buf.write("      return Reflect.set(obj, prop, value, receiver);\n")
+        buf.write("    },\n")
+        buf.write("  });\n")
+        buf.write("}\n")

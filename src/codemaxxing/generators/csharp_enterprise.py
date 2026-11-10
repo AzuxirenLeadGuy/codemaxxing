@@ -1,7 +1,8 @@
 """C# enterprise code generator.
 
-Synthesizes enterprise C# source files featuring async Task workflows, sealed records,
-interface contracts, concurrent collections, telemetry channels, and nested builders.
+Synthesizes rich C# enterprise source files across multiple distinct archetypes:
+MediatR CQRS pipelines with behavior middlewares, async Channels with LINQ switch expressions,
+high-performance Span/Memory ref structs, and Entity Framework repository patterns.
 """
 
 import random
@@ -14,8 +15,8 @@ from codemaxxing import comments, naming
 class CSharpEnterpriseGenerator(SlopGenerator):
     """Enterprise C# code generator.
 
-    Emits idiomatic .NET architecture patterns with file-scoped namespaces, nullable
-    reference types, async/await interfaces, sealed records, and nested builder classes.
+    Emits idiomatic .NET architecture patterns spanning CQRS mediator pipelines,
+    async Channels, high-performance ref structs, and EF Core repositories.
     """
 
     name = "csharp_enterprise"
@@ -35,112 +36,107 @@ class CSharpEnterpriseGenerator(SlopGenerator):
         buf = StringIO()
         namespace_name = naming.class_name(sanity)
         class_name = naming.class_name(sanity)
-        interface_name = "I" + naming.class_name(sanity)
-        record_name = naming.class_name(sanity) + "Record"
 
-        usings = [
-            "using System;",
-            "using System.Collections.Generic;",
-            "using System.Collections.Concurrent;",
-            "using System.Collections.Immutable;",
-            "using System.Linq;",
-            "using System.Threading;",
-            "using System.Threading.Tasks;",
-            "using System.Threading.Channels;",
-            "using System.Diagnostics;",
-            "using System.IO;",
-            "using System.Text.Json;",
-        ]
-        for item in usings:
-            buf.write(f"{item}\n")
-        buf.write("\n")
+        buf.write("using System;\nusing System.Collections.Generic;\nusing System.Threading;\n")
+        buf.write("using System.Threading.Tasks;\nusing System.Threading.Channels;\n\n")
 
         buf.write(f"namespace Codemaxxing.{namespace_name};\n\n")
 
-        buf.write(f"/// <summary>{comments.docstring(sanity, class_name)}</summary>\n")
-        buf.write(f"public interface {interface_name}\n{{\n")
-        for _ in range(random.randint(5, 9)):
-            buf.write(
-                f"    Task<object?> {naming.class_name(sanity)}Async(object? input, CancellationToken cancellationToken);\n"
-            )
-        buf.write("}\n\n")
+        archetype = random.choice([
+            "cqrs_mediatr_pipeline",
+            "async_channel_linq",
+            "high_perf_span",
+            "efcore_repository",
+        ])
 
-        buf.write(f"public sealed record {record_name}(string Name, int Version, bool Enabled);\n\n")
-
-        buf.write(f"public sealed class {class_name} : {interface_name}\n{{\n")
-        field_types = [
-            "string", "int", "long", "bool", "double", "float",
-            "DateTimeOffset", "TimeSpan", "Guid",
-            "List<string>", "Dictionary<string, object?>", "ConcurrentQueue<object?>",
-            "ConcurrentDictionary<string, string>", "ConcurrentBag<object?>",
-            "ActivitySource", "SemaphoreSlim", "CancellationTokenSource",
-            "IReadOnlyList<string>", "ImmutableArray<string>", "Stopwatch",
-        ]
-        properties = []
-        for _ in range(random.randint(8, 14)):
-            field_type = random.choice(field_types)
-            prop_name = naming.class_name(sanity)
-            properties.append((field_type, prop_name))
-            buf.write(f"    public {field_type} {prop_name} {{ get; set; }}\n")
-        buf.write("\n")
-
-        buf.write(f"    public {class_name}()\n    {{\n")
-        for field_type, prop_name in properties:
-            default_value = {
-                "string": 'string.Empty',
-                "int": '0',
-                "long": '0L',
-                "bool": 'false',
-                "double": '0.0',
-                "float": '0.0f',
-                "DateTimeOffset": 'DateTimeOffset.UtcNow',
-                "TimeSpan": 'TimeSpan.Zero',
-                "Guid": 'Guid.NewGuid()',
-                "List<string>": 'new List<string>()',
-                "Dictionary<string, object?>": 'new Dictionary<string, object?>()',
-                "ConcurrentQueue<object?>": 'new ConcurrentQueue<object?>()',
-                "ConcurrentDictionary<string, string>": 'new ConcurrentDictionary<string, string>()',
-                "ConcurrentBag<object?>": 'new ConcurrentBag<object?>()',
-                "ActivitySource": f'new ActivitySource("{class_name}")',
-                "SemaphoreSlim": 'new SemaphoreSlim(1, 1)',
-                "CancellationTokenSource": 'new CancellationTokenSource()',
-                "IReadOnlyList<string>": 'Array.Empty<string>()',
-                "ImmutableArray<string>": 'ImmutableArray<string>.Empty',
-                "Stopwatch": 'Stopwatch.StartNew()',
-            }[field_type]
-            buf.write(f"        {prop_name} = {default_value};\n")
-        buf.write("    }\n\n")
-
-        for _ in range(random.randint(6, 10)):
-            method_name = naming.class_name(sanity) + "Async"
-            buf.write(
-                f"    public async Task<object?> {method_name}(object? input, CancellationToken cancellationToken)\n    {{\n"
-            )
-            buf.write(f"        // {comments.comment(sanity)}\n")
-            buf.write("        cancellationToken.ThrowIfCancellationRequested();\n")
-            buf.write("        await Task.Yield();\n")
-            for _ in range(random.randint(4, 9)):
-                buf.write(f"        var {naming.var_name(sanity)} = input ?? new object();\n")
-            buf.write("        return input;\n")
-            buf.write("    }\n\n")
-
-        for _ in range(random.randint(3, 6)):
-            method_name = naming.class_name(sanity)
-            buf.write(f"    public IEnumerable<string> {method_name}()\n    {{\n")
-            for _ in range(random.randint(10, 18)):
-                buf.write(f"        yield return \"{comments.comment(sanity)}\";\n")
-            buf.write("    }\n\n")
-
-        for _ in range(random.randint(2, 4)):
-            nested_name = naming.class_name(sanity)
-            buf.write(f"    public sealed class {nested_name}\n    {{\n")
-            for _ in range(random.randint(4, 8)):
-                buf.write(f"        public string {naming.class_name(sanity)} {{ get; init; }} = \"{comments.comment(sanity)}\";\n")
-            buf.write("    }\n\n")
-
-        buf.write("}\n")
+        if archetype == "cqrs_mediatr_pipeline":
+            self._generate_cqrs_mediatr(buf, sanity, class_name)
+        elif archetype == "async_channel_linq":
+            self._generate_async_channel(buf, sanity, class_name)
+        elif archetype == "high_perf_span":
+            self._generate_high_perf(buf, sanity, class_name)
+        else:
+            self._generate_efcore_repo(buf, sanity, class_name)
 
         content = buf.getvalue()
         line_count = content.count("\n")
         filename = f"csharp/{class_name}_{file_index}{self.extension}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
+
+    def _generate_cqrs_mediatr(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit CQRS MediatR request, handler, and pipeline behavior."""
+        req_name = f"{class_name}Command"
+        resp_name = f"{class_name}Result"
+
+        buf.write(f"public sealed record {req_name}(Guid CorrelationId, string Payload);\n")
+        buf.write(f"public sealed record {resp_name}(bool Success, DateTime Timestamp);\n\n")
+
+        buf.write(f"public interface IHandler<in TReq, TResp> {{\n")
+        buf.write("    Task<TResp> HandleAsync(TReq request, CancellationToken ct);\n")
+        buf.write("}\n\n")
+
+        buf.write(f"public sealed class {class_name}Handler : IHandler<{req_name}, {resp_name}> {{\n")
+        buf.write(f"    public async Task<{resp_name}> HandleAsync({req_name} request, CancellationToken ct) {{\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        await Task.Yield();\n")
+        buf.write("        ct.ThrowIfCancellationRequested();\n")
+        buf.write(f"        return new {resp_name}(true, DateTime.UtcNow);\n")
+        buf.write("    }\n")
+        buf.write("}\n")
+
+    def _generate_async_channel(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit async bounded channel with pattern matching switch expressions."""
+        buf.write(f"public sealed class {class_name}Channel {{\n")
+        buf.write("    private readonly Channel<string> _channel;\n\n")
+        buf.write(f"    public {class_name}Channel(int capacity = 100) {{\n")
+        buf.write("        _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(capacity) {\n")
+        buf.write("            FullMode = BoundedChannelFullMode.Wait\n")
+        buf.write("        });\n")
+        buf.write("    }\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    public async Task<string> {mname}(string input, CancellationToken ct) {{\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        await _channel.Writer.WriteAsync(input, ct);\n")
+        buf.write("        var status = input.Length switch {\n")
+        buf.write('            0 => "EMPTY",\n')
+        buf.write('            > 50 => "OVERFLOW",\n')
+        buf.write('            _ => "OPTIMAL"\n')
+        buf.write("        };\n")
+        buf.write("        return status;\n")
+        buf.write("    }\n")
+        buf.write("}\n")
+
+    def _generate_high_perf(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit high-performance ref struct with Span<byte>."""
+        buf.write(f"public readonly ref struct {class_name}Buffer {{\n")
+        buf.write("    private readonly ReadOnlySpan<byte> _span;\n\n")
+        buf.write(f"    public {class_name}Buffer(ReadOnlySpan<byte> span) {{\n")
+        buf.write("        _span = span;\n")
+        buf.write("    }\n\n")
+
+        buf.write("    public int Length => _span.Length;\n\n")
+        buf.write("    public bool TryFindDelimiter(byte delimiter, out int index) {\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        index = _span.IndexOf(delimiter);\n")
+        buf.write("        return index >= 0;\n")
+        buf.write("    }\n")
+        buf.write("}\n")
+
+    def _generate_efcore_repo(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit mock Entity Framework Core repository."""
+        buf.write(f"public interface I{class_name}Repository<T> where T : class {{\n")
+        buf.write("    Task<T?> GetByIdAsync(Guid id, CancellationToken ct);\n")
+        buf.write("    Task AddAsync(T entity, CancellationToken ct);\n")
+        buf.write("}\n\n")
+
+        buf.write(f"public sealed class {class_name}Repository<T> : I{class_name}Repository<T> where T : class {{\n")
+        buf.write("    private readonly List<T> _entities = new();\n\n")
+        buf.write("    public Task<T?> GetByIdAsync(Guid id, CancellationToken ct) =>\n")
+        buf.write("        Task.FromResult(_entities.Count > 0 ? _entities[0] : null);\n\n")
+        buf.write("    public Task AddAsync(T entity, CancellationToken ct) {\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        _entities.Add(entity);\n")
+        buf.write("        return Task.CompletedTask;\n")
+        buf.write("    }\n")
+        buf.write("}\n")

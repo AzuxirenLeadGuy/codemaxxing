@@ -1,7 +1,8 @@
 """C++ enterprise code generator.
 
-Synthesizes modern C++ source files with namespaces, pure virtual interface contracts,
-scoped enum classes, final classes with vector/map telemetry, and demonstration main functions.
+Synthesizes rich C++ source files spanning modern C++20 concepts and fold expressions,
+RAII smart pointer pipelines, Curiously Recurring Template Patterns (CRTP),
+and compile-time template metaprogramming recursion.
 """
 
 import random
@@ -14,8 +15,8 @@ from codemaxxing import comments, naming
 class CppEnterpriseGenerator(SlopGenerator):
     """Modern C++ enterprise pattern code generator.
 
-    Emits object-oriented C++ with virtual contract interfaces, modern standard library
-    containers (std::vector, std::map, std::optional), and RAII styling.
+    Emits object-oriented and template-metaprogramming C++ with concepts,
+    std::variant visitors, RAII synchronization guards, and CRTP factories.
     """
 
     name = "cpp_enterprise"
@@ -35,99 +36,116 @@ class CppEnterpriseGenerator(SlopGenerator):
         buf = StringIO()
         namespace_name = naming.class_name(sanity)
         class_name = naming.class_name(sanity)
-        interface_name = naming.class_name(sanity) + "Contract"
-        enum_name = naming.class_name(sanity) + "State"
 
         buf.write(f"// {comments.docstring(sanity, class_name)}\n")
-        buf.write("#include <string>\n#include <vector>\n#include <map>\n#include <memory>\n#include <optional>\n#include <iostream>\n#include <sstream>\n#include <utility>\n\n")
+        buf.write("#include <iostream>\n#include <memory>\n#include <string>\n#include <vector>\n")
+        buf.write("#include <variant>\n#include <optional>\n#include <mutex>\n#include <type_traits>\n\n")
 
         buf.write(f"namespace {namespace_name} {{\n\n")
-        buf.write(
-            f"enum class {enum_name} {{ "
-            "Pending, Running, Blocked, Complete, Deprecated, Chaotic, "
-            "Initializing, Reconciling, Quarantined, Draining, Suspended, "
-            "Transcending, Materialized, Deserializing "
-            "}};\n\n"
-        )
 
-        buf.write(f"class {interface_name} {{\n")
-        buf.write("public:\n")
-        buf.write(f"    virtual ~{interface_name}() = default;\n")
-        for _ in range(random.randint(4, 8)):
-            buf.write(f"    virtual std::optional<std::string> {naming.method_name(sanity)}(const std::string& input) = 0;\n")
-        buf.write("};\n\n")
+        archetype = random.choice([
+            "modern_cpp20_concepts",
+            "raii_smart_pipeline",
+            "crtp_factory",
+            "chaos_template_meta",
+        ])
 
-        buf.write(f"class {class_name} final : public {interface_name} {{\n")
-        buf.write("private:\n")
-        cpp_types = [
-            "std::string", "int", "long", "bool", "double", "float",
-            "uint64_t", "int64_t", "std::vector<int>",
-            "std::vector<std::string>", "std::map<std::string, std::string>",
-            "std::map<std::string, int>", "std::optional<std::string>",
-            "std::shared_ptr<std::string>", "std::unique_ptr<std::string>",
-            "std::pair<std::string, std::string>",
-        ]
-        fields = []
-        for _ in range(random.randint(10, 16)):
-            field_type = random.choice(cpp_types)
-            field_name = naming.var_name(sanity)
-            fields.append((field_type, field_name))
-            buf.write(f"    {field_type} {field_name};\n")
-        buf.write(f"    {enum_name} state_;\n\n")
+        if archetype == "modern_cpp20_concepts":
+            self._generate_cpp20_concepts(buf, sanity, class_name)
+        elif archetype == "raii_smart_pipeline":
+            self._generate_raii_pipeline(buf, sanity, class_name)
+        elif archetype == "crtp_factory":
+            self._generate_crtp_factory(buf, sanity, class_name)
+        else:
+            self._generate_template_meta(buf, sanity, class_name)
 
-        buf.write("public:\n")
-        buf.write(f"    {class_name}()\n        : state_({enum_name}::Pending) {{\n")
-        for field_type, field_name in fields:
-            value = {
-                "std::string": '""',
-                "int": '0',
-                "long": '0L',
-                "bool": 'false',
-                "double": '0.0',
-                "float": '0.0f',
-                "uint64_t": '0ULL',
-                "int64_t": '0LL',
-                "std::vector<int>": '{}',
-                "std::vector<std::string>": '{}',
-                "std::map<std::string, std::string>": '{}',
-                "std::map<std::string, int>": '{}',
-                "std::optional<std::string>": 'std::nullopt',
-                "std::shared_ptr<std::string>": 'nullptr',
-                "std::unique_ptr<std::string>": 'nullptr',
-                "std::pair<std::string, std::string>": '{"", ""}',
-            }[field_type]
-            buf.write(f"        this->{field_name} = {value};\n")
-        buf.write("    }\n\n")
-
-        for _ in range(random.randint(6, 10)):
-            method_name = naming.method_name(sanity)
-            buf.write(f"    std::optional<std::string> {method_name}(const std::string& input) override {{\n")
-            buf.write(f"        // {comments.comment(sanity)}\n")
-            buf.write(f"        state_ = {enum_name}::Running;\n")
-            buf.write("        std::stringstream builder;\n")
-            for _ in range(random.randint(5, 10)):
-                buf.write(f"        builder << \"{comments.comment(sanity)}\" << input;\n")
-            buf.write("        return builder.str();\n")
-            buf.write("    }\n\n")
-
-        buf.write("    std::vector<std::string> metrics() const {\n")
-        buf.write("        return {\n")
-        for _ in range(random.randint(16, 24)):
-            buf.write(f"            \"{comments.comment(sanity)}\",\n")
-        buf.write("        };\n")
-        buf.write("    }\n\n")
-
-        for _ in range(random.randint(2, 4)):
-            nested_name = naming.class_name(sanity)
-            buf.write(f"    struct {nested_name} {{\n")
-            for _ in range(random.randint(4, 7)):
-                buf.write(f"        std::string {naming.var_name(sanity)} = \"{comments.comment(sanity)}\";\n")
-            buf.write("    };\n\n")
-
-        buf.write("};\n\n")
-        buf.write("} // namespace\n")
+        buf.write(f"\n}} // namespace {namespace_name}\n")
 
         content = buf.getvalue()
         line_count = content.count("\n")
         filename = f"cpp/{class_name}_{file_index}{self.extension}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
+
+    def _generate_cpp20_concepts(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit C++20 concepts, std::variant visitors, and fold expressions."""
+        buf.write("template<typename T>\n")
+        buf.write("concept EnterpriseValidatable = requires(T a) {\n")
+        buf.write("    { a.validate() } -> std::same_as<bool>;\n")
+        buf.write("};\n\n")
+
+        buf.write(f"class {class_name} {{\n")
+        buf.write("public:\n")
+        buf.write("    using StateVariant = std::variant<int, std::string, double>;\n\n")
+        buf.write(f"    {class_name}() = default;\n\n")
+
+        # Fold expression method
+        buf.write("    template<typename... Args>\n")
+        buf.write("    auto foldSum(Args... args) {\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        return (... + args);\n")
+        buf.write("    }\n\n")
+
+        # Variant visitor
+        mname = naming.method_name(sanity)
+        buf.write(f"    std::string {mname}(const StateVariant& state) {{\n")
+        buf.write("        return std::visit([](const auto& val) -> std::string {\n")
+        buf.write("            using T = std::decay_t<decltype(val)>;\n")
+        buf.write("            if constexpr (std::is_same_v<T, std::string>) return val;\n")
+        buf.write("            else return std::to_string(val);\n")
+        buf.write("        }, state);\n")
+        buf.write("    }\n")
+        buf.write("};\n")
+
+    def _generate_raii_pipeline(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit RAII lock guard and smart pointer lifecycle manager."""
+        buf.write(f"class {class_name} {{\n")
+        buf.write("private:\n")
+        buf.write("    mutable std::mutex mutex_;\n")
+        buf.write("    std::vector<std::shared_ptr<std::string>> pool_;\n\n")
+        buf.write("public:\n")
+        buf.write(f"    {class_name}() = default;\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    void {mname}(std::string item) {{\n")
+        buf.write("        std::lock_guard<std::mutex> lock(mutex_);\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        pool_.push_back(std::make_shared<std::string>(std::move(item)));\n")
+        buf.write("    }\n\n")
+
+        buf.write("    size_t size() const noexcept {\n")
+        buf.write("        std::lock_guard<std::mutex> lock(mutex_);\n")
+        buf.write("        return pool_.size();\n")
+        buf.write("    }\n")
+        buf.write("};\n")
+
+    def _generate_crtp_factory(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit Curiously Recurring Template Pattern (CRTP)."""
+        buf.write("template<typename Derived>\n")
+        buf.write("class CRTPBase {\n")
+        buf.write("public:\n")
+        buf.write("    void process() {\n")
+        buf.write("        static_cast<Derived*>(this)->onProcess();\n")
+        buf.write("    }\n")
+        buf.write("};\n\n")
+
+        buf.write(f"class {class_name} : public CRTPBase<{class_name}> {{\n")
+        buf.write("public:\n")
+        buf.write("    void onProcess() {\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("    }\n")
+        buf.write("};\n")
+
+    def _generate_template_meta(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit compile-time template metaprogramming recursion."""
+        buf.write("template<size_t N>\n")
+        buf.write("struct Factorial {\n")
+        buf.write("    static constexpr size_t value = N * Factorial<N - 1>::value;\n")
+        buf.write("};\n\n")
+        buf.write("template<>\n")
+        buf.write("struct Factorial<0> {\n")
+        buf.write("    static constexpr size_t value = 1;\n")
+        buf.write("};\n\n")
+
+        buf.write(f"struct {class_name}Meta {{\n")
+        buf.write("    static constexpr size_t depth = Factorial<5>::value;\n")
+        buf.write("};\n")

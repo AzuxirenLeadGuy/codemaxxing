@@ -1,7 +1,9 @@
 """PHP enterprise code generator.
 
-Synthesizes modern PHP source files with namespaces, contracts/interfaces,
-reusable traits, typed properties, docblocks, and nested execution contexts.
+Synthesizes rich PHP 8+ source files across multiple distinct archetypes:
+PHP 8.2+ backed enums with match expressions and readonly classes,
+Symfony-style attribute event dispatchers, Laravel collection pipelines,
+and magic method Fiber coroutines.
 """
 
 import random
@@ -14,8 +16,8 @@ from codemaxxing import comments, naming
 class PhpEnterpriseGenerator(SlopGenerator):
     """Enterprise PHP code generator.
 
-    Emits PHP 8+ class files adhering to PSR-style architecture, including namespaces,
-    interface contracts, traits, constructor property promotion, and docblock annotations.
+    Emits PHP 8+ class files adhering to modern PSR architecture spanning
+    backed enums, match expressions, attribute dispatchers, and fibers.
     """
 
     name = "php_enterprise"
@@ -35,84 +37,86 @@ class PhpEnterpriseGenerator(SlopGenerator):
         buf = StringIO()
         namespace_name = "Codemaxxing\\" + naming.class_name(sanity)
         class_name = naming.class_name(sanity)
-        trait_name = naming.class_name(sanity) + "Trait"
-        interface_name = naming.class_name(sanity) + "Contract"
 
-        buf.write("<?php\n\n")
+        buf.write("<?php\n\ndeclare(strict_types=1);\n\n")
         buf.write(f"namespace {namespace_name};\n\n")
-        buf.write("use ArrayObject;\nuse DateTimeImmutable;\nuse RuntimeException;\nuse stdClass;\n\n")
+        buf.write("use DateTimeImmutable;\nuse RuntimeException;\n\n")
 
-        buf.write(f"/**\n * {comments.docstring(sanity, class_name)}\n */\n")
-        buf.write(f"interface {interface_name}\n{{\n")
-        for _ in range(random.randint(4, 7)):
-            buf.write(f"    public function {naming.method_name(sanity)}(mixed $input, array $context = []): mixed;\n")
-        buf.write("}\n\n")
+        archetype = random.choice([
+            "php8_match_enum",
+            "symfony_event_attr",
+            "laravel_collection",
+            "chaos_magic_fiber",
+        ])
 
-        buf.write(f"trait {trait_name}\n{{\n")
-        for _ in range(random.randint(4, 8)):
-            buf.write(f"    private string ${naming.var_name(sanity)} = '{comments.comment(sanity)}';\n")
-        buf.write("\n")
-        for _ in range(random.randint(3, 5)):
-            method_name = naming.method_name(sanity)
-            buf.write(f"    protected function {method_name}Note(): string\n    {{\n")
-            buf.write(f"        return '{comments.comment(sanity)}';\n")
-            buf.write("    }\n\n")
-        buf.write("}\n\n")
-
-        buf.write(f"final class {class_name} implements {interface_name}\n{{\n")
-        buf.write(f"    use {trait_name};\n\n")
-        properties = []
-        php_types = [
-            "string", "int", "bool", "float", "array", "ArrayObject",
-            "DateTimeImmutable", "?string", "?int", "?array", "iterable", "object",
-        ]
-        for _ in range(random.randint(8, 14)):
-            prop_type = random.choice(php_types)
-            prop_name = naming.var_name(sanity)
-            properties.append((prop_type, prop_name))
-            buf.write(f"    private {prop_type} ${prop_name};\n")
-        buf.write("\n")
-
-        buf.write("    public function __construct()\n    {\n")
-        defaults = {
-            "string": "''",
-            "int": "0",
-            "bool": "false",
-            "float": "0.0",
-            "array": "[]",
-            "ArrayObject": "new ArrayObject()",
-            "DateTimeImmutable": "new DateTimeImmutable()",
-            "?string": "null",
-            "?int": "null",
-            "?array": "null",
-            "iterable": "[]",
-            "object": "new \\stdClass()",
-        }
-        for prop_type, prop_name in properties:
-            buf.write(f"        $this->{prop_name} = {defaults[prop_type]};\n")
-        buf.write("    }\n\n")
-
-        for _ in range(random.randint(5, 9)):
-            method_name = naming.method_name(sanity)
-            buf.write(f"    public function {method_name}(mixed $input, array $context = []): mixed\n    {{\n")
-            buf.write(f"        // {comments.comment(sanity)}\n")
-            for _ in range(random.randint(5, 10)):
-                buf.write(f"        $context['{naming.var_name(sanity)}'] = '{comments.comment(sanity)}';\n")
-            buf.write("        if ($input === null) {\n")
-            buf.write("            return $context;\n")
-            buf.write("        }\n")
-            buf.write("        return $input;\n")
-            buf.write("    }\n\n")
-
-        buf.write("    public function metrics(): array\n    {\n")
-        buf.write("        return [\n")
-        for _ in range(random.randint(12, 20)):
-            buf.write(f"            '{comments.comment(sanity)}',\n")
-        buf.write("        ];\n")
-        buf.write("    }\n")
-        buf.write("}\n")
+        if archetype == "php8_match_enum":
+            self._generate_match_enum(buf, sanity, class_name)
+        elif archetype == "symfony_event_attr":
+            self._generate_symfony_attr(buf, sanity, class_name)
+        elif archetype == "laravel_collection":
+            self._generate_collection_pipeline(buf, sanity, class_name)
+        else:
+            self._generate_magic_fiber(buf, sanity, class_name)
 
         content = buf.getvalue()
         line_count = content.count("\n")
         filename = f"php/{class_name}_{file_index}{self.extension}"
         return GeneratedFile(filename=filename, content=content, line_count=line_count)
+
+    def _generate_match_enum(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit PHP 8.2+ backed enum with match expression and readonly class."""
+        enum_name = f"{class_name}Status"
+        buf.write(f"enum {enum_name}: string {{\n")
+        buf.write("    case PENDING = 'pending';\n")
+        buf.write("    case RUNNING = 'running';\n")
+        buf.write("    case COMPLETED = 'completed';\n\n")
+        buf.write("    public function isTerminal(): bool {\n")
+        buf.write("        return match($this) {\n")
+        buf.write("            self::COMPLETED => true,\n")
+        buf.write("            default => false,\n")
+        buf.write("        };\n")
+        buf.write("    }\n")
+        buf.write("}\n\n")
+
+        buf.write(f"final readonly class {class_name}Payload {{\n")
+        buf.write("    public function __construct(\n")
+        buf.write("        public string $id,\n")
+        buf.write(f"        public {enum_name} $status = {enum_name}::PENDING,\n")
+        buf.write("        public DateTimeImmutable $createdAt = new DateTimeImmutable(),\n")
+        buf.write("    ) {}\n")
+        buf.write("}\n")
+
+    def _generate_symfony_attr(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit Symfony-style attribute-decorated event subscriber."""
+        buf.write("#[\\Attribute]\nclass AsEventListener { public function __construct(public string $event) {} }\n\n")
+
+        buf.write(f"final class {class_name}Listener {{\n")
+        mname = naming.method_name(sanity)
+        buf.write(f"    #[AsEventListener(event: '{mname}.dispatched')]\n")
+        buf.write(f"    public function onDispatch(object $event): void {{\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("    }\n")
+        buf.write("}\n")
+
+    def _generate_collection_pipeline(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit Laravel collection-like pipeline transformations."""
+        buf.write(f"final class {class_name}Pipeline {{\n")
+        mname = naming.method_name(sanity)
+        buf.write(f"    public function {mname}(array $items): array {{\n")
+        buf.write(f"        // {comments.comment(sanity)}\n")
+        buf.write("        return array_values(array_filter(\n")
+        buf.write("            array_map(fn($x) => strtoupper((string)$x), $items),\n")
+        buf.write("            fn($x) => strlen($x) > 0\n")
+        buf.write("        ));\n")
+        buf.write("    }\n")
+        buf.write("}\n")
+
+    def _generate_magic_fiber(self, buf: StringIO, sanity: float, class_name: str) -> None:
+        """Emit Fiber coroutines with dynamic magic method dispatch."""
+        buf.write("use Fiber;\n\n")
+        buf.write(f"final class {class_name}FiberEngine {{\n")
+        buf.write("    public function runAsync(callable $task): mixed {\n")
+        buf.write("        $fiber = new Fiber($task);\n")
+        buf.write("        return $fiber->start();\n")
+        buf.write("    }\n")
+        buf.write("}\n")
