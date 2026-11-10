@@ -1,8 +1,12 @@
 """Enterprise Python code generator.
 
-Synthesizes diverse enterprise Python modules across multiple distinct architectural archetypes:
+Synthesizes diverse enterprise Python modules across 11 distinct architectural archetypes:
 async FastAPI-style microservices, descriptor-driven metaprogramming engines,
-Python 3.10+ structural pattern matching pipelines, and low-level introspection machines.
+Python 3.10+ structural pattern matching pipelines, low-level introspection machines,
+distributed Celery canvas task workflows, Pydantic V2 settings validators,
+Pluggy hook specifications, finite state machine transition graphs,
+AST node transformer rewriters, Strawberry GraphQL schema definitions,
+and columnar lazy data processing pipelines.
 """
 
 import random
@@ -16,13 +20,26 @@ class EnterprisePythonGenerator(SlopGenerator):
     """Enterprise Python code generator.
 
     Emits Python source modules featuring extensive structural ceremony across
-    four varied archetypes: async microservices, descriptor metaclasses,
-    dataclass pattern matchers, and reflective introspection engines.
+    eleven varied archetypes for maximum unpredictability and realistic complexity.
     """
 
     name = "enterprise_python"
     language = "python"
     extension = ".py"
+
+    ARCHETYPES = [
+        "async_fastapi_engine",
+        "metaclass_descriptor_magic",
+        "pattern_matching_dataclass",
+        "scientific_introspection_chaos",
+        "celery_task_orchestrator",
+        "pydantic_settings_validator",
+        "pluggy_hook_specification",
+        "state_machine_transitions",
+        "ast_transformer_rewriter",
+        "graphql_strawberry_schema",
+        "columnar_data_pipeline",
+    ]
 
     def generate(self, sanity: float, file_index: int) -> GeneratedFile:
         """Generate a synthetic enterprise Python source file (.py).
@@ -42,12 +59,7 @@ class EnterprisePythonGenerator(SlopGenerator):
         buf.write(f"Module: {module_name}\n")
         buf.write(f'"""\n\n')
 
-        archetype = random.choice([
-            "async_fastapi_engine",
-            "metaclass_descriptor_magic",
-            "pattern_matching_dataclass",
-            "scientific_introspection_chaos",
-        ])
+        archetype = random.choice(self.ARCHETYPES)
 
         if archetype == "async_fastapi_engine":
             self._generate_async_engine(buf, sanity, cname)
@@ -55,8 +67,22 @@ class EnterprisePythonGenerator(SlopGenerator):
             self._generate_metaclass_engine(buf, sanity, cname)
         elif archetype == "pattern_matching_dataclass":
             self._generate_pattern_matching(buf, sanity, cname)
-        else:
+        elif archetype == "scientific_introspection_chaos":
             self._generate_introspection_chaos(buf, sanity, cname)
+        elif archetype == "celery_task_orchestrator":
+            self._generate_celery_orchestrator(buf, sanity, cname)
+        elif archetype == "pydantic_settings_validator":
+            self._generate_pydantic_settings(buf, sanity, cname)
+        elif archetype == "pluggy_hook_specification":
+            self._generate_pluggy_hooks(buf, sanity, cname)
+        elif archetype == "state_machine_transitions":
+            self._generate_state_machine(buf, sanity, cname)
+        elif archetype == "ast_transformer_rewriter":
+            self._generate_ast_transformer(buf, sanity, cname)
+        elif archetype == "graphql_strawberry_schema":
+            self._generate_graphql_schema(buf, sanity, cname)
+        else:
+            self._generate_columnar_pipeline(buf, sanity, cname)
 
         content = buf.getvalue()
         line_count = content.count("\n")
@@ -70,7 +96,6 @@ class EnterprisePythonGenerator(SlopGenerator):
         buf.write("from dataclasses import dataclass, field\n\n")
         buf.write("logger = logging.getLogger(__name__)\n\n\n")
 
-        # Pydantic-like dataclass
         payload_name = f"{cname}Payload"
         buf.write(f"@dataclass(slots=True)\nclass {payload_name}:\n")
         buf.write(f'    """{comments.docstring(sanity, payload_name)}"""\n')
@@ -79,7 +104,6 @@ class EnterprisePythonGenerator(SlopGenerator):
         buf.write(f"    is_active: bool = True\n")
         buf.write(f"    retry_budget: int = 3\n\n\n")
 
-        # Async engine class
         buf.write(f"class {cname}:\n")
         buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
         buf.write(f"    def __init__(self, concurrency_limit: int = 16) -> None:\n")
@@ -88,7 +112,6 @@ class EnterprisePythonGenerator(SlopGenerator):
         buf.write(f"        self._running = False\n")
         buf.write(f"        self._metrics: dict[str, int] = {{'processed': 0, 'errors': 0}}\n\n")
 
-        # Async context manager
         buf.write(f"    async def __aenter__(self) -> {cname}:\n")
         buf.write(f"        self._running = True\n")
         buf.write(f"        logger.info('Started async engine: {cname}')\n")
@@ -97,7 +120,6 @@ class EnterprisePythonGenerator(SlopGenerator):
         buf.write(f"        self._running = False\n")
         buf.write(f"        await self.drain()\n\n")
 
-        # Async methods
         for _ in range(random.randint(3, 5)):
             mname = naming.method_name(sanity)
             var_arg = naming.var_name(sanity)
@@ -111,7 +133,6 @@ class EnterprisePythonGenerator(SlopGenerator):
             buf.write(f"            self._metrics['processed'] += 1\n")
             buf.write(f"            return {{'status': 'ACK', 'id': {var_arg}.correlation_id}}\n\n")
 
-        # Async generator
         buf.write(f"    async def stream_events(self) -> AsyncIterator[{payload_name}]:\n")
         buf.write(f"        while self._running or not self._queue.empty():\n")
         buf.write(f"            try:\n")
@@ -236,3 +257,153 @@ class EnterprisePythonGenerator(SlopGenerator):
         buf.write(f"            'shadow_len': len(self._shadow),\n")
         buf.write(f"            'history': self._history,\n")
         buf.write(f"        }}\n")
+
+    def _generate_celery_orchestrator(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit Celery-style distributed task canvas orchestrator."""
+        buf.write("import time\nimport uuid\nfrom typing import Any, Callable\n\n")
+
+        buf.write(f"class {cname}TaskOrchestrator:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        buf.write("    def __init__(self, broker_url: str = 'redis://localhost:6379/0') -> None:\n")
+        buf.write("        self.broker_url = broker_url\n")
+        buf.write("        self.task_registry: dict[str, Callable[..., Any]] = {}\n")
+        buf.write("        self.results_backend: dict[str, Any] = {}\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    def task(self, max_retries: int = 3) -> Callable[..., Any]:\n")
+        buf.write("        def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:\n")
+        buf.write("            self.task_registry[fn.__name__] = fn\n")
+        buf.write("            return fn\n")
+        buf.write("        return decorator\n\n")
+
+        buf.write(f"    def {mname}(self, payload: dict[str, Any]) -> str:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write("        task_id = str(uuid.uuid4())\n")
+        buf.write("        self.results_backend[task_id] = {'status': 'PENDING', 'created_at': time.time()}\n")
+        buf.write("        # Simulated canvas chain execution\n")
+        buf.write("        self.results_backend[task_id]['status'] = 'SUCCESS'\n")
+        buf.write("        self.results_backend[task_id]['result'] = payload.get('data', 42)\n")
+        buf.write("        return task_id\n")
+
+    def _generate_pydantic_settings(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit Pydantic V2 style settings configuration model."""
+        buf.write("from dataclasses import dataclass, field\nfrom typing import Optional\nimport os\n\n")
+
+        buf.write(f"@dataclass\nclass {cname}Settings:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n')
+        buf.write(f"    app_env: str = field(default_factory=lambda: os.getenv('APP_ENV', 'production'))\n")
+        buf.write(f"    database_dsn: str = 'postgresql://user:secret@localhost:5432/enterprise'\n")
+        buf.write(f"    pool_timeout_seconds: float = 30.0\n")
+        buf.write(f"    max_overflow: int = 20\n")
+        buf.write(f"    enable_audit_tracing: bool = True\n\n")
+
+        buf.write("    def __post_init__(self) -> None:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write("        if self.pool_timeout_seconds <= 0:\n")
+        buf.write("            raise ValueError('pool_timeout_seconds must be positive')\n")
+        buf.write("        if self.max_overflow < 0:\n")
+        buf.write("            raise ValueError('max_overflow cannot be negative')\n")
+
+    def _generate_pluggy_hooks(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit Pluggy / Pytest style plugin hook specifications."""
+        buf.write("from typing import Any, Callable\n\n")
+
+        buf.write(f"class {cname}HookSpec:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        mname = naming.method_name(sanity)
+        buf.write(f"    def {mname}_pre_execution(self, context: dict[str, Any]) -> None:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write("        pass\n\n")
+        buf.write(f"    def {mname}_post_execution(self, result: Any) -> Any:\n")
+        buf.write("        pass\n\n\n")
+
+        buf.write(f"class {cname}PluginManager:\n")
+        buf.write("    def __init__(self) -> None:\n")
+        buf.write("        self._plugins: list[object] = []\n\n")
+        buf.write("    def register(self, plugin: object) -> None:\n")
+        buf.write("        self._plugins.append(plugin)\n\n")
+        buf.write(f"    def trigger_{mname}(self, ctx: dict[str, Any]) -> None:\n")
+        buf.write("        for p in self._plugins:\n")
+        buf.write(f"            if hasattr(p, '{mname}_pre_execution'):\n")
+        buf.write(f"                getattr(p, '{mname}_pre_execution')(ctx)\n")
+
+    def _generate_state_machine(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit a finite state machine transition engine."""
+        buf.write("from enum import Enum, auto\nfrom typing import Optional\n\n")
+
+        enum_name = f"{cname}StateEnum"
+        buf.write(f"class {enum_name}(Enum):\n")
+        buf.write("    IDLE = auto()\n    RUNNING = auto()\n    BLOCKED = auto()\n    COMPLETE = auto()\n\n\n")
+
+        buf.write(f"class {cname}StateMachine:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        buf.write(f"    def __init__(self) -> None:\n")
+        buf.write(f"        self.current_state = {enum_name}.IDLE\n")
+        buf.write("        self.history: list[str] = []\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    def transition_{mname}(self) -> bool:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write(f"        if self.current_state == {enum_name}.IDLE:\n")
+        buf.write(f"            self.current_state = {enum_name}.RUNNING\n")
+        buf.write("            self.history.append('TRANSITION_RUNNING')\n")
+        buf.write("            return True\n")
+        buf.write(f"        elif self.current_state == {enum_name}.RUNNING:\n")
+        buf.write(f"            self.current_state = {enum_name}.COMPLETE\n")
+        buf.write("            self.history.append('TRANSITION_COMPLETE')\n")
+        buf.write("            return True\n")
+        buf.write("        return False\n")
+
+    def _generate_ast_transformer(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit an AST node transformer code rewriter."""
+        buf.write("import ast\n\n")
+
+        buf.write(f"class {cname}AstTransformer(ast.NodeTransformer):\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        buf.write("    def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.AST:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write("        self.generic_visit(node)\n")
+        buf.write("        log_call = ast.Expr(\n")
+        buf.write("            value=ast.Call(\n")
+        buf.write("                func=ast.Name(id='print', ctx=ast.Load()),\n")
+        buf.write("                args=[ast.Constant(value=f'Entering {node.name}')],\n")
+        buf.write("                keywords=[]\n")
+        buf.write("            )\n")
+        buf.write("        )\n")
+        buf.write("        node.body.insert(0, log_call)\n")
+        buf.write("        return node\n")
+
+    def _generate_graphql_schema(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit a Strawberry/GraphQL schema definition."""
+        buf.write("from dataclasses import dataclass\nfrom typing import Optional\n\n")
+
+        type_name = f"{cname}Type"
+        buf.write(f"@dataclass\nclass {type_name}:\n")
+        buf.write("    id: str\n    name: str\n    is_resolved: bool = True\n\n\n")
+
+        buf.write(f"class {cname}QueryResolver:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        mname = naming.method_name(sanity)
+        buf.write(f"    def {mname}(self, entity_id: str) -> Optional[{type_name}]:\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write(f"        if not entity_id:\n")
+        buf.write("            return None\n")
+        buf.write(f"        return {type_name}(id=entity_id, name=f'Node_{{entity_id}}')\n")
+
+    def _generate_columnar_pipeline(self, buf: StringIO, sanity: float, cname: str) -> None:
+        """Emit a high-performance columnar lazy data pipeline."""
+        buf.write("from typing import Any\n\n")
+
+        buf.write(f"class {cname}ColumnarPipeline:\n")
+        buf.write(f'    """{comments.docstring(sanity, cname)}"""\n\n')
+        buf.write("    def __init__(self, data: dict[str, list[Any]]) -> None:\n")
+        buf.write("        self._columns = data\n")
+        buf.write("        self._operations: list[str] = []\n\n")
+
+        mname = naming.method_name(sanity)
+        buf.write(f"    def {mname}_filter(self, column: str, threshold: float) -> '{cname}ColumnarPipeline':\n")
+        buf.write(f"        # {comments.comment(sanity)}\n")
+        buf.write("        self._operations.append(f'FILTER_{column}_GT_{threshold}')\n")
+        buf.write("        return self\n\n")
+        buf.write("    def collect(self) -> dict[str, int]:\n")
+        buf.write("        return {'applied_filters': len(self._operations), 'column_count': len(self._columns)}\n")

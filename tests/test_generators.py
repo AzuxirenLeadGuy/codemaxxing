@@ -61,5 +61,27 @@ class TestGenerators(unittest.TestCase):
         self.assertGreaterEqual(len(files), 16)
 
 
+    def test_minimum_ten_archetypes_for_target_languages(self) -> None:
+        """Verify Rust, C, C++, and Python each provide at least 10 archetypes."""
+        target_gens = {
+            "enterprise_python": 10,
+            "c_slop": 10,
+            "cpp_enterprise": 10,
+            "rust_enterprise": 10,
+        }
+        for gen in ALL_GENERATORS:
+            if gen.name in target_gens:
+                min_count = target_gens[gen.name]
+                self.assertTrue(
+                    hasattr(gen, "ARCHETYPES"),
+                    f"Generator {gen.name} does not define ARCHETYPES list",
+                )
+                self.assertGreaterEqual(
+                    len(gen.ARCHETYPES),
+                    min_count,
+                    f"Generator {gen.name} has only {len(gen.ARCHETYPES)} archetypes, expected at least {min_count}",
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

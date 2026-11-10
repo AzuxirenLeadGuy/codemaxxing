@@ -166,3 +166,66 @@ When contributing, the usual work is one of the following:
 ## Notes
 
 Documentation here is meant to help future developers navigate the structure without needing to reverse-engineer the generator design from output files alone.
+
+### Latest update
+
+All 16 code generators produce code output that is significantly more sophisticated, unpredictable, and random across multiple architectural archetypes per language:
+
+#### Expanded Archetypes for Rust, C, C++, and Python (11+ Archetypes Each)
+
+- **Python (`enterprise_python.py`)**:
+  - *Async FastAPI / Microservice Engines*: `async def`, `asyncio.Queue`, `asyncio.Semaphore`, async context managers, async generators (`stream_events`).
+  - *Descriptor Metaprogramming*: `__set_name__`, custom descriptors, `__init_subclass__`, dynamic metaclass registries.
+  - *Python 3.10+ Pattern Matching*: Dataclass hierarchies with `match/case` structural pattern matching state machines.
+  - *Scientific & Low-level Introspection*: `@lru_cache`, bytearray manipulation, `sys._getframe()` stack frame inspection.
+  - *Celery Task Canvas Orchestrator*: `@task(max_retries=3)`, canvas chains, and async results backends.
+  - *Pydantic V2 Settings Validator*: Post-init field validation, environment variable extraction, and connection pool configs.
+  - *Pluggy Hook Specifications*: Hook specification and hook implementation plugin architectures.
+  - *Finite State Machine Transitions*: State machine graphs with transition histories and guard conditions.
+  - *AST Node Transformer Rewriters*: `ast.NodeTransformer` inspecting and injecting logging into function definitions.
+  - *Strawberry GraphQL Schemas*: GraphQL query resolvers, types, and schema nodes.
+  - *Columnar Data Pipelines*: Lazy columnar query operations, lazy filters, and collection aggregations.
+
+- **C (`c_slop.py`)**:
+  - *VTable OOP*: Function pointer dispatch tables, reference counting, and `goto cleanup;` safety.
+  - *Memory Arenas*: 8-byte aligned bump allocators and circular queues.
+  - *X-Macro Preprocessors*: `#define ENTERPRISE_METRICS(X)` generating enums and string lookup tables.
+  - *Embedded Hardware Drivers*: Volatile register structs, bitwise masks, CRC32 checksum routines.
+  - *Intrusive Doubly-Linked Lists*: Linux kernel-style `container_of` macros and circular linked nodes.
+  - *Bloom Filters*: Multi-seed bitwise Bloom filters with bit manipulation.
+  - *Lockless SPSC Queues*: Single-producer single-consumer circular buffers with atomic head/tail tracking.
+  - *Duff's Device Coroutines*: Stackless cooperative coroutines with switch-case state persistence.
+  - *Dynamic Hash Maps*: Open-addressing linear probing hash tables with string keys.
+  - *Signal Event Loops*: POSIX signal handling with volatile flags and monotonic tick loops.
+  - *Radix Trie Prefix Trees*: 26-ary prefix trees for fast key indexing.
+
+- **C++ (`cpp_enterprise.py`)**:
+  - *C++20 Concepts & Fold Expressions*: `concept EnterpriseValidatable`, fold expressions `(... + args)`, `std::variant` visitors with `std::visit`.
+  - *RAII Smart Pipelines*: `std::lock_guard<std::mutex>`, `std::shared_ptr` pools.
+  - *CRTP Pattern*: Curiously Recurring Template Pattern factories (`class Impl : public CRTPBase<Impl>`).
+  - *Compile-Time Template Metaprogramming*: Recursive template instantiations (`Factorial<N>`).
+  - *C++20 Coroutines*: Stackless coroutines with generator promises (`std::coroutine_handle`, `co_yield`).
+  - *Thread Pools*: Multi-threaded worker pools with `std::condition_variable` and `std::packaged_task`.
+  - *Lock-Free Tagged Stacks*: Atomic CAS compare-and-swap stack with ABA avoidance.
+  - *Variant State Machines*: Strongly typed variant states with `Overloaded` visitor structs.
+  - *PMR Allocators*: C++17 polymorphic memory resources with monotonic buffer pools.
+  - *Expression Templates*: Lazy vector arithmetic expressions avoiding temporaries.
+  - *Signal/Slot Observers*: Multicast thread-safe signals with connection handles.
+
+- **Rust (`rust_enterprise.py`)**:
+  - *Async Actors*: Atomic counters, custom error enums with `impl std::error::Error` and `Display`.
+  - *Compile-Time Typestate Builders*: `Builder<Uninitialized>` -> `Builder<Configured>` with `PhantomData`.
+  - *Thread-Safe Custom Iterators*: `impl Iterator` reading through `Arc<RwLock<Vec<u32>>>`.
+  - *Macro Slop*: Declarative `macro_rules! enterprise_eval` expansions.
+  - *Tower / Axum Services*: Middleware services wrapping inner request/response layers.
+  - *Zero-Copy Byte Slice Parsers*: Nom-style lifetime slice parsing (`&'a [u8]`).
+  - *Proc-Macro AST Derives*: Syn/Quote AST token stream inspection structures.
+  - *Lock-Free Atomic Queues*: Concurrent `AtomicPtr` linked queues.
+  - *Pin-Projected Hand-Crafted Futures*: `impl Future` with `Pin<&mut Self>` and `Poll` transitions.
+  - *Entity Component Systems (ECS)*: Sparse entity storage and transform components.
+  - *Generational Arenas*: Slot-reuse generational allocators with index validation.
+
+#### CLI & Turbo Mode
+- Added `cli.py` to support package script hooks.
+- Restored and typed `turbo.py` for `--turbo` auto-commit loops.
+- Added comprehensive unit tests in `tests/test_generators.py` verifying all 16 generators pass across all sanity levels.
